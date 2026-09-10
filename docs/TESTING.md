@@ -3,7 +3,8 @@
 Automated tests cover model calculations, visibility, live weapon state, order ownership, and cleanup.
 They use synthetic combat states and API test doubles.
 They do not run the Starsector engine or establish an improvement in battle outcomes.
-The first 0.1.0 release requires in-game validation of its experimental coordination.
+The experimental coordination still requires in-game validation.
+Version 0.1.1 adds the missing mission text that prevented startup in 0.1.0.
 
 The build compiles against the installed Starsector and LunaLib JARs.
 It also scans the mod classes for blocked filesystem and reflection APIs.
@@ -17,11 +18,15 @@ Run the following commands from the mod directory:
 
 ```powershell
 .\gradlew.bat clean build --console=plain
+python -m unittest discover -s tests -p "test_package.py"
 python package.py
 ```
 
 The HTML test report is `build/reports/tests/test/index.html`.
 The XML reports are in `build/test-results/test`.
+The Python tests reject missing mission resources and invalid LunaLib icon registrations.
+They also extract an in-memory ZIP into a temporary directory and make sure that its sole mod folder contains the runtime files.
+This extraction test does not install anything into the game.
 The suite includes the following cases:
 
 - Hard flux remains a floor while shields prevent hard-flux dissipation.

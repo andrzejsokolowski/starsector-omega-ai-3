@@ -1,7 +1,7 @@
 {
   "masterVersionFile": "https://raw.githubusercontent.com/andrzejsokolowski/starsector-omega-ai-3/main/omega_ai.version",
   "modName": "Omega AI",
-  "modVersion": {"major": 0, "minor": 1, "patch": "0"},
+  "modVersion": {"major": 0, "minor": 1, "patch": "1"},
   "starsectorVersion": "0.98a-RC8",
-  "directDownloadURL": "https://github.com/andrzejsokolowski/starsector-omega-ai-3/releases/download/v0.1.0/Omega-AI-0.1.0.zip"
+  "directDownloadURL": "https://github.com/andrzejsokolowski/starsector-omega-ai-3/releases/download/v0.1.1/Omega-AI-0.1.1.zip"
 }

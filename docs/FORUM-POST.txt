@@ -1,0 +1,34 @@
+[center][img]https://raw.githubusercontent.com/andrzejsokolowski/starsector-omega-ai-3/main/omega-ai-icon.png[/img][/center]
+[center][size=24pt][b]Omega AI 0.1.1 - Experimental Alpha[/b][/size][/center]
+[center][url=https://github.com/andrzejsokolowski/starsector-omega-ai-3/releases/tag/v0.1.1]Download[/url] | [url=https://github.com/andrzejsokolowski/starsector-omega-ai-3]Source and documentation[/url][/center]
+
+[b]Current scope[/b]
+Omega AI starts with fleet coordination: helping unsupported ships wait for heavier support, rejoining idle stragglers, and breaking pursuits without useful closing progress.
+This is an early alpha. The broader work on survival, focus fire, exploitation, missiles, and carrier wings is still pending.
+An improvement in actual battle outcomes is not yet established.
+
+[b]Requirements[/b]
+Starsector 0.98a-RC8, LunaLib 2.0.0 or later, and LunaLib's required libraries.
+
+[b]Try the alpha[/b]
+Install the release ZIP through your mod manager, or extract its OmegaAI folder into Starsector's mods directory.
+Omega AI starts in Observe mode, which records proposed decisions without issuing orders.
+Open LunaLib, select Omega AI, and enable diagnostic logging.
+Run the Omega AI: Fleet Trial mission with flagship autopilot enabled.
+Repeat with Coordinate selected to test temporary regrouping orders.
+
+[b]Control and compatibility[/b]
+Existing player and commander orders take precedence.
+Carriers, phase ships, fighters, stations, and unknown custom ship controllers retain their existing control.
+Earlier Omega AI mods and active AI Tweaks fleet cohesion block coordination.
+For a baseline comparison, disable other combat behavior mods.
+
+[b]Current changelog - 0.1.1[/b]
+[list]
+[li]Fixed the missing mission briefing that caused a startup crash.[/li]
+[li]Fixed the missing LunaLib icon.[/li]
+[li]Changed the release package to contain only runtime files inside OmegaAI.[/li]
+[/list]
+
+[b]Feedback[/b]
+Please include the mode, other combat mods, affected ships, a description of the behavior, and the relevant starsector.log.

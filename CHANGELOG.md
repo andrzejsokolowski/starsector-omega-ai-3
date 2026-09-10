@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Fixed a startup crash caused by the missing Fleet Trial mission briefing file.
+- Fixed the missing Omega AI icon in the LunaLib settings menu.
+- Changed release packaging to create `OmegaAI/` and its ZIP in the mod project root, with only runtime files inside.
+
 ## 0.1.0
 
 - Added Observe mode to display proposed fleet decisions without issuing combat orders.

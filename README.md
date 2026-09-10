@@ -1,6 +1,8 @@
 # Omega AI
 
-Omega AI 0.1.0 is an experimental fleet coordinator for Starsector 0.98a-RC8.
+<img src="omega-ai-icon.png" alt="Omega AI emblem" width="192">
+
+Omega AI 0.1.1 is an experimental fleet coordinator for Starsector 0.98a-RC8.
 This first alpha introduces observation, temporary regrouping orders, and a mission for comparing their effects.
 It does not yet implement the full combat AI described in the [design](docs/DESIGN.md).
 Combat quality and compatibility still need in-game testing.
@@ -26,7 +28,7 @@ The mod requires Starsector 0.98a-RC8 and LunaLib 2.0.0 or later.
 The release ZIP contains an `OmegaAI` folder for a mod manager.
 The mod ID is `omega_ai3`, which distinguishes this project from earlier Omega AI attempts.
 
-1. Download `Omega-AI-0.1.0.zip` from the [GitHub release](https://github.com/andrzejsokolowski/starsector-omega-ai-3/releases/tag/v0.1.0).
+1. Download `Omega-AI-0.1.1.zip` from the [GitHub release](https://github.com/andrzejsokolowski/starsector-omega-ai-3/releases/tag/v0.1.1).
 2. Install the ZIP through your mod manager.
 3. Enable Omega AI and LunaLib.
 4. Open LunaLib and select Omega AI.
@@ -72,21 +74,30 @@ The repository and ZIP do not contain those third-party JARs or extracted game s
 ```powershell
 $env:STARSECTOR_HOME = 'D:/Games/StarSector'
 .\gradlew.bat clean build --console=plain
+python -m unittest discover -s tests -p "test_package.py"
 python package.py
 ```
 
 Alternatively, put `starsectorPath=D:/Games/StarSector` in an untracked `local.properties` file.
 Python 3.10 or later runs the packaging script without additional packages.
-The script writes `dist/Omega-AI-0.1.0.zip` and prints its SHA-256 hash, a fingerprint of the ZIP contents.
+The script creates `OmegaAI/` and `Omega-AI-0.1.1.zip` directly in the mod project root.
+Both generated outputs are gitignored.
+The staging folder contains only runtime files, including the mission briefing and LunaLib icon registration.
+The ZIP contains that entire folder, so extracting it into `/mods` creates `mods/OmegaAI/mod_info.json`.
+Source, tests, build tools, and documentation stay in the repository.
+The script prints the ZIP's SHA-256 hash, a fingerprint of its contents.
 It makes sure that the metadata, source fingerprint, compiled classes, Java version, test reports, and archive layout agree.
 It never installs files into the game.
 
 To inspect an existing ZIP, run:
 
 ```powershell
-python package.py --verify dist/Omega-AI-0.1.0.zip
+python package.py --verify Omega-AI-0.1.1.zip
 ```
 
 The [changelog](CHANGELOG.md) lists release changes.
 The [design](docs/DESIGN.md) describes the remaining work on survival, focus fire, exploitation, missiles, and carriers.
 The [art record](docs/ART.md) contains the sprite generation prompt.
+The [forum post draft](docs/FORUM-POST.txt) includes the icon and release link for later publication.
+No forum topic exists yet, so the metadata does not contain a topic ID.
+The registered version tracker points to this repository's raw `omega_ai.version` file and the matching GitHub release asset.

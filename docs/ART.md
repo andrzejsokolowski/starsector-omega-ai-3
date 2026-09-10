@@ -1,8 +1,11 @@
 # Omega AI sprite
 
-The project uses a generated Omega emblem in the mod list, combat status, and fleet trial.
+The project uses a generated Omega emblem in the LunaLib settings list, combat status, and fleet trial.
 The asset is `graphics/omega_ai_icon.png`.
+`data/config/LunaSettingsConfig.json` registers that image under the `omega_ai3` mod ID, following Sol Renewed's configuration.
 The mission contains an identical copy at `data/missions/omega_ai3_trial/icon.png`.
+The repository also contains `omega-ai-icon.png` for the README and forum post draft.
+That documentation image stays outside the runtime ZIP.
 The PNG is a square RGBA image, which includes an alpha channel for transparency.
 
 The built-in image generation tool created the sprite for this project.

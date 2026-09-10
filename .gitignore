@@ -3,6 +3,8 @@
 build/
 jars/
 dist/
+*.zip
+/OmegaAI/
 local.properties
 *.iml
 __pycache__/
