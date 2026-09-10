@@ -1,0 +1,83 @@
+plugins { id 'java' }
+
+def local = new Properties()
+if (file('local.properties').exists()) file('local.properties').withInputStream { local.load(it) }
+def gamePath = providers.gradleProperty('starsectorPath').orElse(providers.environmentVariable('STARSECTOR_HOME'))
+        .getOrElse(local.getProperty('starsectorPath', 'D:/Games/StarSector'))
+def core = file("$gamePath/starsector-core")
+def luna = fileTree(dir: "$gamePath/mods", include: 'LunaLib*/jars/LunaLib.jar')
+def metadata = new groovy.json.JsonSlurper().parse(file('mod_info.json'))
+version = metadata.version
+def releaseInputs = files(fileTree('src') { include '**/*.java' }, 'build.gradle', 'settings.gradle', 'gradle.properties', 'mod_info.json')
+def sourceDigest = {
+    def digest = java.security.MessageDigest.getInstance('SHA-256')
+    releaseInputs.files.sort { a, b -> relativePath(a) <=> relativePath(b) }.each { f ->
+        digest.update(relativePath(f).replace('\\', '/').getBytes('UTF-8'))
+        digest.update((byte) 0)
+        digest.update(f.bytes)
+        digest.update((byte) 0)
+    }
+    digest.digest().encodeHex().toString()
+}
+
+java { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+tasks.withType(JavaCompile).configureEach { options.release = 17; options.encoding = 'UTF-8' }
+sourceSets { main.java.srcDirs = ['src']; test.java.srcDirs = ['tests'] }
+repositories { mavenCentral() }
+dependencies {
+    compileOnly fileTree(dir: core, include: '*.jar')
+    compileOnly luna
+    testImplementation fileTree(dir: core, include: '*.jar')
+    testImplementation luna
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+tasks.register('checkGameDependencies') {
+    doLast {
+        if (!new File(core, 'starfarer.api.jar').exists() || luna.isEmpty()) {
+            throw new GradleException('Set starsectorPath in local.properties or STARSECTOR_HOME. Starsector 0.98a and LunaLib are required to compile.')
+        }
+    }
+}
+tasks.named('compileJava') { dependsOn 'checkGameDependencies' }
+test {
+    useJUnitPlatform()
+    testLogging { events 'failed', 'skipped'; exceptionFormat = 'full' }
+    outputs.file('build/verification/tests.json')
+    doLast {
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        fileTree('build/classes/java') { include '**/*.class' }.files.sort { a, b -> relativePath(a) <=> relativePath(b) }.each { f ->
+            digest.update(relativePath(f).replace('\\', '/').getBytes('UTF-8'))
+            digest.update((byte) 0)
+            digest.update(f.bytes)
+            digest.update((byte) 0)
+        }
+        def receipt = file('build/verification/tests.json')
+        receipt.parentFile.mkdirs()
+        receipt.text = groovy.json.JsonOutput.toJson([classSha256: digest.digest().encodeHex().toString()])
+    }
+}
+tasks.register('checkNoForbiddenApis') {
+    dependsOn 'classes'
+    doLast {
+        def forbidden = ['java/io/', 'java/nio/file/', 'java/lang/reflect/']
+        def failures = []
+        sourceSets.main.output.classesDirs.asFileTree.matching { include '**/*.class' }.each { f ->
+            def content = new String(f.bytes, 'ISO-8859-1')
+            forbidden.each { if (content.contains(it)) failures << "$f.name -> $it" }
+        }
+        if (!failures.isEmpty()) throw new GradleException('Forbidden game API references: ' + failures.join(', '))
+    }
+}
+jar {
+    dependsOn 'checkNoForbiddenApis'
+    inputs.files(releaseInputs)
+    destinationDirectory = file('jars')
+    archiveFileName = 'OmegaAI.jar'
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    manifest { attributes 'Implementation-Title': 'Omega AI', 'Implementation-Version': project.version, 'Starsector-Version': metadata.gameVersion }
+    doFirst { manifest.attributes 'Omega-Source-SHA256': sourceDigest() }
+}
+tasks.named('check') { dependsOn 'checkNoForbiddenApis' }

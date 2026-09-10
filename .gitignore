@@ -1,0 +1,9 @@
+.gradle/
+.idea/
+build/
+jars/
+dist/
+local.properties
+*.iml
+__pycache__/
+.private/
