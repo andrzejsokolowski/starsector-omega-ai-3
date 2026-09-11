@@ -1,9 +1,15 @@
 {
-  "plugins": {"omega_ai3_combat": "omegaai3.OmegaCombatPlugin"},
-  "graphics": {"icons": {"omega_ai3_status": "graphics/omega_ai_icon.png"}},
+  "plugins": {
+    "omega_ai3_combat": "omegaai3.OmegaCombatPlugin"
+  },
+  "graphics": {
+    "icons": {
+      "omega_ai3_status": "graphics/omega_ai_icon.png"
+    }
+  },
   "omega_ai3": {
     "enabled": true,
-    "mode": "Observe",
+    "mode": "Coordinate",
     "playerFleet": true,
     "enemyFleet": true,
     "simulator": true,

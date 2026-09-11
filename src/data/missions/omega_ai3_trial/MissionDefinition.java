@@ -14,8 +14,8 @@ public final class MissionDefinition implements MissionDefinitionPlugin {
         api.setFleetTagline(FleetSide.PLAYER, "Heavy anchor with fast escorts");
         api.setFleetTagline(FleetSide.ENEMY, "Mixed opposition and mobile distractions");
         api.addBriefingItem("Use autopilot for the flagship to compare autonomous fleets.");
-        api.addBriefingItem("Start in Observe mode, then repeat with Coordinate selected in LunaLib.");
-        api.addBriefingItem("Keep other settings and orders identical. Record losses, chase time, and the combat log.");
+        api.addBriefingItem("Select Coordinate in LunaLib for direct Omega target and movement control.");
+        api.addBriefingItem("Action labels show executed movement decisions. Observe restores native pilots.");
         api.addToFleet(FleetSide.PLAYER, "onslaught_Standard", FleetMemberType.SHIP, "Anchor", true);
         api.addToFleet(FleetSide.PLAYER, "hammerhead_Balanced", FleetMemberType.SHIP, "Support", false);
         api.addToFleet(FleetSide.PLAYER, "wolf_Assault", FleetMemberType.SHIP, "Scout One", false);

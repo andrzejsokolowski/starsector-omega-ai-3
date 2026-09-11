@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 - local development build
+
+- Replaced temporary regrouping orders with direct target selection, facing, and movement control for ordinary combat ships.
+- Added effective-range control, pressure-based withdrawal with recovery, support staging, and pursuit of reachable vulnerable enemies.
+- Added shared target allocation and rejection of pursuits against faster fleeing enemies.
+- Added short action labels tied to decisions executed by the ship pilot.
+- Made Coordinate the default for new settings; Observe restores native pilots.
+- Removed the global AI Tweaks cohesion block; individual orders and custom controllers still take precedence.
+- Kept native weapons, shields, systems, and emergency collision avoidance active.
+
 ## 0.1.3 - local test build
 
 - Simplified ship labels to one short active action: Regrouping, Waiting for support, or Disengaging.

@@ -20,14 +20,10 @@ public final class OmegaSettings implements LunaSettingsListener {
         try {
             JSONObject defaults = Global.getSettings().getJSONObject("omega_ai3");
             String mode = LunaSettings.getString(MOD_ID, "omega3_mode");
-            if (mode == null) mode = defaults.optString("mode", "Observe");
+            if (mode == null) mode = defaults.optString("mode", "Coordinate");
             String conflict = "";
             var mods = Global.getSettings().getModManager();
             if (mods.isModEnabled("omega_ai")) conflict = "Earlier Omega AI is enabled";
-            else if (mods.isModEnabled("aitweaks")) {
-                Boolean cohesion = LunaSettings.getBoolean("aitweaks", "aitweaks_enable_fleet_cohesion_ai");
-                if (cohesion == null || cohesion) conflict = "AI Tweaks fleet cohesion is enabled";
-            }
             current = new Options(value("omega3_enabled", defaults.optBoolean("enabled", true)), "Coordinate".equals(mode),
                     value("omega3_player", defaults.optBoolean("playerFleet", true)), value("omega3_enemy", defaults.optBoolean("enemyFleet", true)),
                     value("omega3_simulator", defaults.optBoolean("simulator", true)), value("omega3_status", defaults.optBoolean("showStatus", true)),

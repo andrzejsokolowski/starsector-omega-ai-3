@@ -3,15 +3,16 @@ Omega AI: Fleet Trial
 An Onslaught and a Hammerhead lead two Wolf frigates against a mixed enemy fleet.
 This mission provides fixed ships and map objectives for comparing fleet behavior.
 
-Before the first run, select Observe in LunaLib's Omega AI configuration.
-Enable Log decisions and Combat status.
-Use autopilot for the flagship and let the battle proceed without orders.
-Observe mode records proposals without changing combat decisions.
+Select Coordinate in LunaLib's Omega AI configuration for direct control.
+Use autopilot if you want Omega to control the flagship too.
+Logging is optional and starts disabled.
 
-Repeat the mission with Coordinate selected and the same configuration.
-Watch whether the frigates reach combat before support, whether ships chase without closing, and whether regrouping delays useful attacks.
-Record losses, battle duration, and any repeated waiting or movement loops.
-Compare several runs because battle outcomes vary.
+Small action labels show the movement decision each Omega pilot is executing:
+Advancing, Engaging, Pursuing, Retreating, Waiting for support, or Disengaging.
+Retreating means backing out of local danger, not leaving the battle.
+Existing fleet orders and manual control take precedence.
 
-This alpha changes only limited fleet coordination.
-Missile use, fighter missions, shields, venting, and individual ship piloting retain their existing behavior.
+This build controls targets, range, facing, approach, and withdrawal for ordinary combat ships.
+Weapons, missiles, shields, venting, systems, and emergency collision avoidance use native game modules.
+Carriers, fighters, phase ships, and custom ship pilots retain their existing control.
+Observe mode restores native pilots. Combat effectiveness still needs in-game validation.

@@ -2,117 +2,64 @@
 
 <img src="omega-ai-icon.png" alt="Omega AI emblem" width="192">
 
-Omega AI 0.1.3 is a local test build of an experimental fleet coordinator for Starsector 0.98a-RC8.
-This first alpha introduces observation, temporary regrouping orders, and a mission for comparing their effects.
-It does not yet implement the full combat AI described in the [design](docs/DESIGN.md).
-Combat quality and compatibility still need in-game testing.
+Omega AI 0.2.0 is a local development build for Starsector 0.98a-RC8.
+It controls target selection, hull facing, and movement for ordinary combat ships.
+Combat effectiveness has not yet been established in game.
 
-Omega AI starts in Observe mode.
-This mode evaluates proposed orders and leaves combat decisions to the existing AI.
-The combat status displays the current mode, proposal count, and active order count.
-Optional diagnostics record decision changes in `starsector.log`.
+Coordinate is the default for new settings. Existing LunaLib selections remain saved.
+In Coordinate mode, Omega closes to effective weapon range, maintains that range, withdraws under unsafe pressure, waits for delayed heavy support, and pursues reachable vulnerable targets.
+Ships share target allocation and stop chasing enemies that are opening range faster than they can intercept.
+Observe restores native pilots and makes no gameplay changes.
 
-In Coordinate mode, eligible ships can receive three types of temporary regrouping orders:
+One small label appears above each ship while its Omega pilot executes a movement decision:
+Advancing, Engaging, Pursuing, Retreating, Waiting for support, or Disengaging.
+Retreating means withdrawing from local danger, not leaving the battle.
+Labels disappear when control passes to another controller or the decision expires.
+The status display counts ships currently under Omega movement control.
+Logging is optional and starts disabled.
 
-- A detached ship can abandon a chase after six seconds without useful closing progress.
-- An unsupported frigate or destroyer can wait near heavier support before approaching a stronger or longer-range opponent.
-- An idle straggler can rejoin a group that is closer to visible combat.
+## Install
 
-The existing ship AI pilots the ship and controls its weapons, shields, systems, and collision avoidance.
-These first rules use limited estimates of support and arrival time.
-They do not provide a complete model of danger, escape routes, or enemy strength.
+Requires Starsector 0.98a-RC8, LunaLib 2.0.0 or later, and LazyLib.
+Install `Omega-AI-0.2.0.zip` through your mod manager and select Coordinate in LunaLib's Omega AI settings.
+The included Omega AI: Fleet Trial mission is available from the mission list.
+Use autopilot if you want Omega to control the flagship too.
 
-## Install and try the alpha
+## Current limits
 
-The mod requires Starsector 0.98a-RC8, LunaLib 2.0.0 or later, and LazyLib.
-The release ZIP contains an `OmegaAI` folder for a mod manager.
-The mod ID is `omega_ai3`, which distinguishes this project from earlier Omega AI attempts.
+The native game modules still handle weapons, missile firing, shields, venting, ship systems, and emergency collision avoidance.
+This build does not implement new missile doctrine, shield decisions, carrier wing coordination, or encirclement tactics.
+Carriers, phase ships, fighters, stations, allied fleets, and custom ship AI retain their existing control.
 
-1. Use `Omega-AI-0.1.3.zip` from the local build described below.
-2. Install the ZIP through your mod manager.
-3. Enable Omega AI and LunaLib.
-4. Open LunaLib and select Omega AI.
-5. Leave the mode at Observe for the first run.
-6. Open the mission Omega AI: Fleet Trial.
-7. Enable autopilot for the flagship to compare autonomous fleets.
-8. Repeat the mission with Coordinate selected.
+Specific player or commander assignments take precedence. Search and Destroy permits autonomous Omega control.
+Full Assault, Full Retreat, Avoid, and Ignore directives defer to native control.
+An enemy fleet in full retreat also returns pursuit to the native pilot.
+Active systems, venting, overload, manual control, and RTSAssist control markers suspend Omega steering.
 
-LunaLib also controls observation and coordination for each fleet, simulator participation, combat status, and diagnostic logging.
-Configuration changes take effect during combat.
-When you select Observe or disable the mod, Omega releases its own unchanged orders.
-The [test guide](docs/TESTING.md) explains how to compare runs and report failures.
+Earlier Omega AI blocks Coordinate mode. AI Tweaks no longer blocks it globally; its individual assignments and replacement pilots still take precedence.
+The direct helm uses RC8 game internals and disables itself on an unsupported version.
+Compatibility with every combat mod is not established.
 
-## Ship decision helper
+## Build
 
-One small action label appears above a ship while Omega directs it: Regrouping, Waiting for support, or Disengaging.
-The label disappears when that action ends, you take control, or Omega cannot control the ship.
-Observe mode shows no ship action labels.
-The display starts enabled and uses LunaLib → Omega AI → Diagnostics → Ship action labels.
-
-Detailed decisions and control exclusions remain available through Log decisions.
-The combat status reports a fleet coordinator conflict when one blocks Omega orders.
-For a matched comparison, disable AI Tweaks → Ship AI → Enable Fleet Cohesion AI in both runs.
-
-## Control and compatibility
-
-Existing player and commander orders take precedence.
-Omega does not replace capture, escort, attack, defend, rally, or retreat assignments that it did not create.
-Global Avoid, Ignore, Full Assault, and Full Retreat commands stop coordination for the affected fleet.
-Enemy Full Retreat also stops regrouping so that Omega does not obstruct pursuit of a routed fleet.
-
-This alpha coordinates ordinary combat ships that use the stock `BasicShipAI` controller.
-It excludes manual player control, allied fleets, carriers, phase ships, fighters, drones, stations, station modules, and unknown custom controllers.
-It also defers while a ship vents, overloads, or uses an active system.
-Broadside ships keep their stock facing and weapon control.
-
-An enabled earlier Omega AI mod blocks Coordinate mode.
-AI Tweaks fleet cohesion also blocks Coordinate mode.
-An unreadable AI Tweaks cohesion configuration blocks coordination rather than assuming that the feature is off.
-RTSAssist control markers block commands to the affected ship.
-Other AI Tweaks features can replace individual ship controllers, which then exclude those ships from Omega coordination.
-The combat status reports a detected fleet coordinator conflict.
-
-## Build and package
-
-The project uses Java 17 bytecode and the Gradle wrapper.
-A local Starsector installation supplies the game API and LunaLib dependencies.
-The repository and ZIP do not contain those third-party JARs or extracted game source.
-
-1. Install JDK 17 or later.
-2. Set `STARSECTOR_HOME` to your Starsector installation directory.
-3. Run the build from the mod directory.
+Use JDK 17 or later and Python 3.10 or later on Windows.
+Set `starsectorPath=D:/Games/StarSector` in an untracked `local.properties`, or set `STARSECTOR_HOME`.
+The game installation supplies the game, LunaLib, LazyLib, and native test libraries.
 
 ```powershell
-$env:STARSECTOR_HOME = 'D:/Games/StarSector'
 .\gradlew.bat clean build --console=plain
 python -m unittest discover -s tests -p "test_package.py"
 python package.py
+python package.py --verify Omega-AI-0.2.0.zip
 ```
 
-Alternatively, put `starsectorPath=D:/Games/StarSector` in an untracked `local.properties` file.
-Python 3.10 or later runs the packaging script without additional packages.
-The script creates `OmegaAI/` and `Omega-AI-0.1.3.zip` directly in the mod project root.
-Both generated outputs are gitignored.
-The staging folder contains only runtime files, including the mission briefing and LunaLib icon registration.
-The ZIP contains that entire folder, so extracting it into `/mods` creates `mods/OmegaAI/mod_info.json`.
-Source, tests, build tools, and documentation stay in the repository.
-The script prints the ZIP's SHA-256 hash, a fingerprint of its contents.
-It makes sure that the metadata, source fingerprint, compiled classes, Java version, test reports, and archive layout agree.
-It never installs files into the game.
+The script stages runtime files in `OmegaAI/` and writes the ZIP in this project's root.
+Both outputs are gitignored. The ZIP contains one top-level `OmegaAI/` folder with metadata, the compiled JAR, icons, and mission resources.
+It excludes source, tests, development documents, and third-party libraries.
+Packaging verifies source and class fingerprints, version metadata, tests, resources, and archive layout.
+It never installs into the game.
 
-To inspect an existing ZIP, run:
-
-```powershell
-python package.py --verify Omega-AI-0.1.3.zip
-```
-
-The [changelog](CHANGELOG.md) lists release changes.
-The [design](docs/DESIGN.md) describes the remaining work on survival, focus fire, exploitation, missiles, and carriers.
-The [art record](docs/ART.md) contains the sprite generation prompt.
-The [forum post draft](docs/FORUM-POST.txt) includes the icon and release link for later publication.
-No forum topic exists yet, so the metadata does not contain a topic ID.
-The registered version tracker points to this repository's raw `omega_ai.version` file and the matching GitHub release asset.
-That tracked file remains at published version 0.1.1.
-The packager writes version 0.1.3 into the staged version file while retaining the last published download URL.
-It does not update the public feed or advertise an unavailable release asset.
-New tags and GitHub releases wait for the joint decision to release 1.0.0.
+See the [design](docs/DESIGN.md), [verification record](docs/TESTING.md), [changelog](CHANGELOG.md), and [art record](docs/ART.md).
+The [forum post](docs/FORUM-POST.txt) remains an unpublished draft for the last public build.
+The public version tracker stays at 0.1.1; the ZIP contains local version 0.2.0 while retaining the last published download URL.
+No new tags or GitHub Releases will be created before the joint decision to release 1.0.0.

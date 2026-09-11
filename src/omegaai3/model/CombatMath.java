@@ -2,7 +2,7 @@ package omegaai3.model;
 
 import static omegaai3.model.BattleFrame.*;
 
-/** Small explicit models. Forecasts are diagnostics in 0.1; they never trigger shield/vent commands. */
+/** Small explicit models used by the tactical planner; they never trigger shield/vent commands. */
 public final class CombatMath {
     private CombatMath() {}
     public record FluxResult(double total, double hard, boolean overloadRisk) {}

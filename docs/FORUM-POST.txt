@@ -1,3 +1,5 @@
+UNPUBLISHED HISTORICAL DRAFT: describes public 0.1.1 only. Rewrite for the agreed 1.0.0 release; local 0.2.0 is not downloadable from the release link below.
+
 [center][img]https://raw.githubusercontent.com/andrzejsokolowski/starsector-omega-ai-3/main/omega-ai-icon.png[/img][/center]
 [center][size=24pt][b]Omega AI 0.1.1 - Experimental Alpha[/b][/size][/center]
 [center][url=https://github.com/andrzejsokolowski/starsector-omega-ai-3/releases/tag/v0.1.1]Download[/url] | [url=https://github.com/andrzejsokolowski/starsector-omega-ai-3]Source and documentation[/url][/center]

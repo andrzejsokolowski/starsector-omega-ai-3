@@ -4,8 +4,22 @@ import java.util.List;
 
 /** A side's current perception. No game object or mutable game vector is retained here. */
 public record BattleFrame(int side, double time, double width, double height,
-                          List<Ship> friends, List<Ship> enemies, List<Shot> shots) {
-    public BattleFrame { friends = List.copyOf(friends); enemies = List.copyOf(enemies); shots = List.copyOf(shots); }
+                          List<Ship> friends, List<Ship> enemies, List<Shot> shots, List<Obstacle> obstacles) {
+    public BattleFrame { friends = List.copyOf(friends); enemies = List.copyOf(enemies); shots = List.copyOf(shots); obstacles = List.copyOf(obstacles); }
+    public BattleFrame(int side, double time, double width, double height, List<Ship> friends, List<Ship> enemies, List<Shot> shots) {
+        this(side, time, width, height, friends, enemies, shots, List.of());
+    }
+    public record Obstacle(String id, Vec position, Vec velocity, double radius) {}
+    public record Defense(double facing, double turnRate, double shieldArc, double shieldFacing, boolean frontShield,
+                          double armor, List<Double> armorSectors) {
+        public Defense { armorSectors = List.copyOf(armorSectors); }
+        public double armorToward(Vec relativeSource) {
+            if (armorSectors.isEmpty()) return armor;
+            double angle = (relativeSource.bearing() - facing + 720) % 360;
+            int sector = ((int) Math.round(angle / 45)) % 8;
+            return armorSectors.get(sector);
+        }
+    }
     public enum Kind { FRIGATE, DESTROYER, CRUISER, CAPITAL, OTHER }
     public enum Damage {
         KINETIC(2, .5), HIGH_EXPLOSIVE(.5, 2), ENERGY(1, 1), FRAGMENTATION(.25, .25);
@@ -37,8 +51,14 @@ public record BattleFrame(int side, double time, double width, double height,
                        double speed, double acceleration, double deceleration, double radius,
                        double dp, double hull, double maxHull, Flux flux, List<Gun> guns,
                        boolean incapacitated, boolean specialist, boolean fighter,
-                       boolean controllable, String targetId) {
+                       boolean controllable, String targetId, Defense defense) {
         public Ship { guns = List.copyOf(guns); }
+        public Ship(String id, String name, Kind kind, Vec position, Vec velocity, double speed, double acceleration,
+                    double deceleration, double radius, double dp, double hull, double maxHull, Flux flux, List<Gun> guns,
+                    boolean incapacitated, boolean specialist, boolean fighter, boolean controllable, String targetId) {
+            this(id, name, kind, position, velocity, speed, acceleration, deceleration, radius, dp, hull, maxHull, flux,
+                    guns, incapacitated, specialist, fighter, controllable, targetId, new Defense(0, 30, 360, 0, false, 0, List.of()));
+        }
         public double hullFraction() { return maxHull > 0 ? hull / maxHull : 0; }
         public double gunDps() {
             if (incapacitated) return 0;

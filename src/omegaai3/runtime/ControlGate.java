@@ -8,7 +8,7 @@ public final class ControlGate {
     private static final String[] RTS_KEYS = {"RTS_BLOCKAI_ForYourOwnSakeDontUseThis",
             "RTS_OVERRIDETHRUST_ForYourOwnSakeDontUseThis", "RTS_OVERRIDEFACING_ForYourOwnSakeDontUseThis"};
     private ControlGate() {}
-    public static boolean knownPilot(String name) { return "com.fs.starfarer.combat.ai.BasicShipAI".equals(name); }
+    public static boolean knownPilot(String name) { return "com.fs.starfarer.combat.ai.BasicShipAI".equals(name) || OmegaShipAI.class.getName().equals(name); }
     public static boolean externallyControlled(Map<String, Object> data) {
         for (String key : RTS_KEYS) {
             Object value = data.get(key);

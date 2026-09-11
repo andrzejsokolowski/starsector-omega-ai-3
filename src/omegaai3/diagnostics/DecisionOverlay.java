@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 /** One short action above each ship Omega directs. Enemy labels obey viewer visibility. */
 public final class DecisionOverlay {
-    public record Entry(ShipAPI ship, DecisionView view) {}
+    public record Entry(ShipAPI ship, String label) {}
     private static final Logger LOG = Logger.getLogger(DecisionOverlay.class);
     private static final Color REGROUP = new Color(140, 200, 255);
     private static final Color WAIT = new Color(255, 220, 130);
@@ -24,7 +24,7 @@ public final class DecisionOverlay {
         try {
             Set<ShipAPI> present = Collections.newSetFromMap(new IdentityHashMap<>());
             for (Entry entry : entries) {
-                if (!entry.view().label().isEmpty() && activeControl.test(entry)) present.add(entry.ship());
+                if (!entry.label().isEmpty() && activeControl.test(entry)) present.add(entry.ship());
             }
             for (var iterator = text.entrySet().iterator(); iterator.hasNext();) {
                 var item = iterator.next();
@@ -35,7 +35,7 @@ public final class DecisionOverlay {
             int viewer = engine.getPlayerShip() == null ? 0 : engine.getPlayerShip().getOwner();
             int drawn = 0;
             for (Entry entry : entries) {
-                String value = entry.view().label();
+                String value = entry.label();
                 if (value.isEmpty()) continue;
                 ShipAPI ship = entry.ship();
                 if (!present.contains(ship)) continue;
@@ -66,7 +66,7 @@ public final class DecisionOverlay {
         return switch (action) {
             case "Regrouping" -> REGROUP;
             case "Waiting for support" -> WAIT;
-            case "Disengaging" -> DISENGAGE;
+            case "Disengaging", "Retreating" -> DISENGAGE;
             default -> Color.WHITE;
         };
     }

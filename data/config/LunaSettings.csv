@@ -1,9 +1,9 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
-omega3_enabled,Enable Omega AI,Boolean,true,,Enable observation and the selected coordination mode.,,,General
-omega3_mode,Mode,Radio,Observe,"Observe, Coordinate","Observe records proposals without issuing orders. Coordinate enables experimental regrouping orders for eligible ships. Both modes retain the normal ship pilot.",,,General
+omega3_enabled,Enable Omega AI,Boolean,true,,Enable Omega AI in the selected mode.,,,General
+omega3_mode,Mode,Radio,Coordinate,"Observe, Coordinate",Coordinate controls target selection and movement. Observe restores native pilots and makes no gameplay changes.,,,General
 omega3_player,Player fleet,Boolean,true,,Include your autonomous ships. Your manually piloted ship and allied fleets retain their own control.,,,General
 omega3_enemy,Enemy fleet,Boolean,true,,Include eligible enemy ships. Existing enemy commander orders are preserved.,,,General
 omega3_simulator,Combat simulator,Boolean,true,,Include refit simulations and the fleet trial.,,,General
-omega3_status,Combat status,Boolean,true,,Show the current mode and proposal counts in the combat status area.,,,Diagnostics
-omega3_labels,Ship action labels,Boolean,true,,Show a short action above ships that Omega is directing. Hide the label when Omega has no active order.,,,Diagnostics
-omega3_log,Log decisions,Boolean,false,,Record changed proposals and periodic diagnostics in starsector.log. Useful when comparing Observe and Coordinate.,,,Diagnostics
+omega3_status,Combat status,Boolean,true,,Show the current mode and number of ships under active Omega movement control.,,,Diagnostics
+omega3_labels,Ship action labels,Boolean,true,,Show one action above a ship while its Omega pilot executes that movement decision.,,,Diagnostics
+omega3_log,Log decisions,Boolean,false,,Optional developer diagnostics. Logging is not required to use or evaluate the AI.,,,Diagnostics

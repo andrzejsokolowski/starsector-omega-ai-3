@@ -37,6 +37,7 @@ dependencies {
     testImplementation lazyRuntime
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 tasks.register('checkGameDependencies') {
@@ -48,6 +49,10 @@ tasks.register('checkGameDependencies') {
 }
 tasks.named('compileJava') { dependsOn 'checkGameDependencies' }
 test {
+    // The game's obfuscated classes require the same verifier setting as starsector.bat.
+    jvmArgs '-Xverify:none'
+    systemProperty 'omega.test.core', core.absolutePath
+    systemProperty 'java.library.path', new File(core, 'native/windows').absolutePath
     useJUnitPlatform()
     testLogging { events 'failed', 'skipped'; exceptionFormat = 'full' }
     outputs.file('build/verification/tests.json')

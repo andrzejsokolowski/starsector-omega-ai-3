@@ -138,13 +138,13 @@ def inspect_payload(payload: dict[str, bytes]) -> str:
             == [["version file"], ["omega_ai.version"]], "The version CSV registration is incorrect.")
     inspect_forum_metadata(mod, version_file)
     defaults = json.loads(payload["data/config/settings.json"])
-    require(defaults["omega_ai3"]["mode"] == "Observe", "This alpha must start in Observe mode.")
+    require(defaults["omega_ai3"]["mode"] == "Coordinate", "This direct-control build must default to Coordinate.")
     require(defaults["plugins"]["omega_ai3_combat"] == "omegaai3.OmegaCombatPlugin", "The combat plugin is not registered.")
     require(list(csv.reader(io.StringIO(payload["data/missions/mission_list.csv"].decode())))
             == [["mission"], ["omega_ai3_trial"]], "The fleet trial is not registered.")
     luna = list(csv.DictReader(io.StringIO(payload["data/config/LunaSettings.csv"].decode())))
-    require(next(row for row in luna if row["fieldID"] == "omega3_mode")["defaultValue"] == "Observe",
-            "The LunaLib default must also be Observe.")
+    require(next(row for row in luna if row["fieldID"] == "omega3_mode")["defaultValue"] == "Coordinate",
+            "The LunaLib default must also be Coordinate.")
     for name in ["graphics/omega_ai_icon.png", "data/missions/omega_ai3_trial/icon.png"]:
         png = payload[name]
         require(png[:8] == b"\x89PNG\r\n\x1a\n", f"Invalid PNG: {name}")

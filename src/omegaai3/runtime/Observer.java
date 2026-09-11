@@ -17,12 +17,16 @@ public final class Observer {
 
     public Read capture(CombatEngineAPI engine, int side, double time, Predicate<ShipAPI> eligible, boolean includeProjectiles) {
         List<Ship> friends = new ArrayList<>(), enemies = new ArrayList<>();
+        List<Obstacle> obstacles = new ArrayList<>();
         Map<String, ShipAPI> originals = new HashMap<>();
         Set<String> visibleIds = new HashSet<>();
         List<ShipAPI> visible = new ArrayList<>();
         int skipped = 0;
         for (ShipAPI ship : engine.getShips()) {
             try {
+                if (!ship.isExpired() && !ship.isFighter() && (ship.getOwner() == side || engine.isAwareOf(side, ship))) {
+                    obstacles.add(new Obstacle(key(ship), vec(ship.getLocation()), vec(ship.getVelocity()), positive(ship.getCollisionRadius())));
+                }
                 if (!ship.isAlive() || ship.isHulk() || ship.isExpired() || ship.isShuttlePod() || ship.isPiece()
                         || ship.getOwner() < 0 || ship.getOwner() > 1) continue;
                 // Never read the live hidden enemy's equipment, target, flux, or position.
@@ -54,7 +58,7 @@ public final class Observer {
                         positive(p.getDamageAmount()), damage(p.getDamageType()), p.getDamage().isSoftFlux(), guided, positive(speed), life));
             } catch (RuntimeException e) { skipped++; }
         }
-        return new Read(new BattleFrame(side, time, engine.getMapWidth(), engine.getMapHeight(), friends, enemies, shots), Map.copyOf(originals), skipped);
+        return new Read(new BattleFrame(side, time, engine.getMapWidth(), engine.getMapHeight(), friends, enemies, shots, obstacles), Map.copyOf(originals), skipped);
     }
 
     private Ship readShip(ShipAPI s, boolean controllable, Set<String> visibleIds) {
@@ -91,7 +95,30 @@ public final class Observer {
         double dp = s.getFleetMember() == null ? 0 : positive(s.getFleetMember().getDeploymentPointsCost());
         return new Ship(key(s), s.getName() == null ? key(s) : s.getName(), kind(s), vec(s.getLocation()), vec(s.getVelocity()),
                 positive(s.getMaxSpeed()), positive(s.getAcceleration()), positive(s.getDeceleration()), positive(s.getCollisionRadius()),
-                dp, positive(s.getHitpoints()), positive(s.getMaxHitpoints()), flux, guns, incapacitated, specialist, s.isFighter(), controllable && dp > 0, target);
+                dp, positive(s.getHitpoints()), positive(s.getMaxHitpoints()), flux, guns, incapacitated, specialist, s.isFighter(), controllable && dp > 0, target,
+                defense(s, shield, hasShield));
+    }
+    private Defense defense(ShipAPI ship, ShieldAPI shield, boolean hasShield) {
+        ArmorGridAPI armor = ship.getArmorGrid();
+        List<Double> sectors = new ArrayList<>();
+        double rating = armor == null ? 0 : positive(armor.getArmorRating());
+        if (armor != null && armor.getMaxArmorInCell() > 0) {
+            float[][] grid = armor.getGrid();
+            for (int n = 0; n < 8; n++) {
+                double angle = Math.toRadians(ship.getFacing() + n * 45);
+                int[] cell = armor.getCellAtLocation(new Vector2f(ship.getLocation().x + (float) (Math.cos(angle) * ship.getCollisionRadius() * .45),
+                        ship.getLocation().y + (float) (Math.sin(angle) * ship.getCollisionRadius() * .45)));
+                double sum = 0; int count = 0;
+                if (cell != null) for (int x = Math.max(0, cell[0] - 1); x <= cell[0] + 1 && x < grid.length; x++) {
+                    for (int y = Math.max(0, cell[1] - 1); y <= cell[1] + 1 && y < grid[x].length; y++) {
+                        sum += Math.max(0, grid[x][y]) / armor.getMaxArmorInCell(); count++;
+                    }
+                }
+                sectors.add(count == 0 ? 0 : rating * Math.min(1, sum / count));
+            }
+        }
+        return new Defense(ship.getFacing(), positive(ship.getMaxTurnRate()), hasShield ? shield.getArc() : 0,
+                hasShield ? shield.getFacing() : ship.getFacing(), hasShield && shield.getType() == ShieldAPI.ShieldType.FRONT, rating, sectors);
     }
     public static String key(ShipAPI ship) { String id = ship.getId(); return id != null ? id : "object-" + System.identityHashCode(ship); }
     private static Vec vec(Vector2f v) { return new Vec(v.x, v.y); }

@@ -1,138 +1,54 @@
-# Tests and battle comparisons
+# Verification of local build 0.2.0
 
-Automated tests cover model calculations, visibility, live weapon state, order ownership, and cleanup.
-They use synthetic combat states and API test doubles.
-They do not run the Starsector engine or establish an improvement in battle outcomes.
-The experimental coordination still requires in-game validation.
-Version 0.1.1 adds the missing mission text that prevented startup in 0.1.0.
+This build has direct movement control. Logging is optional and is not the gameplay test.
+The automated checks run before packaging; in-game combat effectiveness remains unverified.
 
-The [first Observe run](observations/2026-09-11-observe-01.md) records a player victory with one Wolf lost.
-It also records zero Omega orders and zero proposals in a setup with 248 active mods.
-The report separates those facts from missing controller data and the AI Tweaks conflict that affects the next comparison.
-The [first Coordinate run](observations/2026-09-11-coordinate-01.md) records a reported total loss with zero accepted Omega orders.
-AI Tweaks fleet cohesion was still enabled.
-Local build 0.1.2 adds labels and eligibility diagnostics to make that blocked state visible.
-Local build 0.1.3 limits ship labels to one active action and keeps eligibility details in the log.
+Local verification on 2026-09-11 passed 74 Java tests, 8 Python packaging tests, the runtime API scan, and ZIP verification.
+The final ZIP SHA-256 is `e65662a60a23c3e5ed23718968bdf248ee6043de43f81206b55604498fcf1884`.
 
-The build compiles against the installed Starsector and LunaLib JARs.
-It also scans the mod classes for blocked filesystem and reflection APIs.
-Packaging compares the JAR with current compiled classes and the source fingerprint.
-These steps establish build and package consistency.
-They do not establish the behavior of the stock pilot after receiving an order.
+## Automated coverage
 
-## Automated tests
+The tactical scenarios exercise repeated approach and braking until the ship settles inside weapon range, pressure-based withdrawal and recovery, waiting for heavy support, faster-target chase rejection, shared pursuit of a vulnerable target, broadside facing, obstacle avoidance, and absent targets.
+The repeated movement scenario uses simplified acceleration physics, not a running battle.
 
-Run the following commands from the mod directory:
+Native integration tests load the installed RC8 game classes and execute the actual `BasicEngineAI`.
+They check forward thrust, backward thrust, strafing with independent hull facing, braking to a lower speed, and preservation of fire, shield, and pre-existing commands during movement replacement.
+A repeated-update harness applies actual native thrust commands to simplified acceleration physics and checks convergence to a lower speed, a stop, and reverse movement.
+A failed native helm call must restore the movement commands it replaced.
+A real `OmegaShipAI` constructor and advance run against mocked ship and combat-engine state.
+This checks that a published intent becomes an executed thrust decision, that its label appears only after execution, and that manual takeover and expiration hide it.
+Session tests install the real pilot, restore the original, preserve assignments, and leave another mod's replacement controller intact.
+These tests do not create a graphical battle or simulate native weapons hitting real ships.
+
+The existing model and observer tests cover hard/soft flux, damage types, interception, ammunition, turret arcs, fog of war, copied vectors, deployment points, and vent duration.
+Legacy rally tests remain as regression fixtures for the earlier implementation, which is no longer called by the combat plugin.
+Packaging checks the actual tested class bytes, source hash, Java version, metadata, icon registration, mission resources, and one-folder ZIP layout.
 
 ```powershell
 .\gradlew.bat clean build --console=plain
 python -m unittest discover -s tests -p "test_package.py"
 python package.py
+python package.py --verify Omega-AI-0.2.0.zip
 ```
 
-The HTML test report is `build/reports/tests/test/index.html`.
-The XML reports are in `build/test-results/test`.
-The Python tests reject missing mission resources and invalid LunaLib icon registrations.
-They also extract an in-memory ZIP into a temporary directory and make sure that its sole mod folder contains the runtime files.
-This extraction test does not install anything into the game.
-The suite includes the following cases:
+Native tests use the verifier setting required by Starsector's obfuscated code and read the installed base settings in the test process only.
+No game configuration or installed mod is changed. Test reflection, Mockito, and native harness setup are excluded from the runtime JAR and ZIP.
 
-- Hard flux remains a floor while shields prevent hard-flux dissipation.
-- Soft flux, weapon flux, and shield upkeep share the correct dissipation budget.
-- Damage types do not apply their armor multiplier to hull damage.
-- Moving-target interception distinguishes a fleeing target from a head-on meeting.
-- Turret slew does not extend the physical mount arc.
-- Empty ammunition removes new weapon threat while existing projectiles remain independent.
-- Hidden enemy positions and equipment remain unread.
-- Observations copy live mutable vectors and read real DP and vent duration.
-- Small ships can wait for delayed support without stopping a safe duel.
-- Productive contact and changing targets prevent false chase rejection.
-- Regrouping avoids a route through an enemy line.
-- Observe mode creates no assignment or waypoint.
-- Existing orders, full assault, retreat, manual control, and controller conflicts take precedence.
-- Edited and shared waypoints survive cleanup as player-owned orders.
-- Rejected orders, stalled orders, expiry, and disable release the appropriate resources.
+## In game
 
-## First in-game comparison
+Install the local ZIP through the mod manager, select Coordinate, and open Omega AI: Fleet Trial.
+Use autopilot for the flagship if Omega should control it.
+The small action label describes the current executed movement decision; the status counts ships actually under Omega control.
+A specific fleet order, active system, native collision response, manual control, or custom pilot can suspend Omega steering.
 
-The included mission uses fixed ship variants and map objectives.
-The simulation still contains variation between runs.
-Identical fleets do not establish a deterministic battle seed.
-Configuration changes and other mods can also change the comparison.
+The behavior to assess is whether ships close to useful range, withdraw with room left, wait for support without becoming idle, and finish reachable vulnerable enemies.
+Stalling, repeated advance/retreat loops, or worsening losses remain failures even when all automated tests pass.
+No log collection is required for this check.
+Observe remains available to restore native pilots during development.
 
-1. Start with Omega AI, LunaLib, and LunaLib's required libraries, with other combat behavior mods disabled.
-2. Enable Omega AI diagnostic logging in LunaLib.
-3. Select Observe mode and enable both fleets.
-4. Start Omega AI: Fleet Trial from the mission list.
-5. Enable autopilot for the flagship.
-6. Record the result and the behaviors listed below.
-7. Repeat the mission with Coordinate selected and all other configuration unchanged.
-8. Alternate modes over several runs before drawing a conclusion.
+## Earlier evidence
 
-Record the following observations for each run:
-
-| Measurement | What to record |
-| --- | --- |
-| Battle setup | Game and mod versions, mode, enabled fleets, other mods, and issued orders |
-| Actual controller | Whether the ship uses the stock pilot or another mod's controller |
-| Order effect | Whether a visible Omega rally order appears and whether the ship moves toward it |
-| Support | Seconds that scouts face enemy weapons before the heavy ship can contribute |
-| Pursuit | Seconds spent chasing outside useful weapon range without closing |
-| Participation | Ships that wait, repeatedly regroup, or fail to return to combat |
-| Outcome | Time to victory or defeat, lost ships, and surviving hull |
-| Cost | Peak planning milliseconds and visible frame stutter |
-
-The log distinguishes a proposal from an accepted assignment.
-An accepted assignment means that the task manager returned the expected ownership state.
-It does not mean that the ship reached the waypoint or that the decision helped.
-Record the visible result separately.
-
-For local builds 0.1.2 and later, record the `observed`, `eligible`, `effective`, and `conflict` log fields.
-The slash-separated counts show the player side first and enemy side second.
-An eligible count of zero needs an exclusion explanation before a behavior comparison is meaningful.
-The `Omega ship` records identify changed decisions, controller classes, assignments, and proposals.
-Enemy labels require the player's side to see that ship.
-In 0.1.3, only ships under an active Omega order show an action label.
-Observe runs and excluded ships have no action label.
-
-## Control and compatibility cases
-
-Run these cases before enabling more behavior by default.
-The expected result describes the intended contract.
-Actual in-game results remain pending for this release.
-
-| Case | Expected result |
-| --- | --- |
-| Observe from battle start | No Omega gameplay orders |
-| Coordinate to Observe while moving | Only Omega's unchanged assignment disappears |
-| Disable while paused | Ownership cleanup occurs without advancing simulation time |
-| Take manual control during a regroup | No stale Omega order remains in control |
-| Issue an attack, escort, capture, defend, or rally order | The new player order remains intact |
-| Move an Omega waypoint or add another ship to it | Omega transfers ownership without deleting the edited order |
-| Full Assault, Full Retreat, Avoid, or Ignore | Omega stops intervening for the affected fleet |
-| Enemy full retreat | No new regrouping orders obstruct the rout pursuit |
-| Enemy and player fleet switches | Only enabled fleets receive proposals and orders |
-| Phase ship, carrier, station, drone, or custom AI | Existing control remains intact |
-| AI Tweaks fleet cohesion | Combat status reports observing only |
-| RTSAssist active selection and control | The controlled ship receives no Omega order |
-| StopStackingMe and other movement mods | Record actual controller ownership and any competing behavior |
-| Ship death, retreat, battle end, or a runtime error | Omega releases only resources that it still owns |
-
-## Behavioral limits and later cases
-
-Test a slow cruiser against a faster fleeing frigate and against an interceptable target.
-Test two fast scouts with a delayed capital ship.
-Test a short-range frigate approaching a long-range capital.
-Test a damaged or overfluxed support ship, a crowded line, a map edge, and an enemy between the ship and its support.
-Watch for repeated rallies, stalled advances, excessive caution, lost objectives, and routes that expose a ship to another enemy.
-
-Repeat the comparison with only one fleet coordinated, then reverse the advantage using matched fleets.
-Keep loadouts, officers, skills, combat readiness, deployment, and other mods consistent.
-Use Observe results to estimate normal variation before choosing quantitative acceptance thresholds.
-Do not treat one victory as evidence of a general improvement.
-
-Later survival work needs armor sectors, missiles already in flight, real vent durations, and movement during escape.
-Later exploitation work needs isolated targets and targets with intact escorts.
-Later weapon work needs torpedoes, pressure missiles, saturation weapons, regeneration, and scripted ammunition.
-Later carrier work needs fighters, interceptors, bombers, support wings, long sorties, and replacement losses.
-Those modules are outside the 0.1.0 gameplay scope.
+The first [Observe run](observations/2026-09-11-observe-01.md) ended in a reported win with one Wolf lost.
+The first [Coordinate run](observations/2026-09-11-coordinate-01.md) ended in a reported total loss.
+Both recorded zero Omega orders, with AI Tweaks cohesion enabled.
+Those runs tested the older integration prototype, not this direct pilot, and establish no performance result for 0.2.0.
