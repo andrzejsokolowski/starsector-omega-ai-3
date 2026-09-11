@@ -21,6 +21,8 @@ This file overrides the workspace's automatic release workflow for this project 
 Write each ZIP directly in this mod project's root directory.
 Stage only runtime files in `OmegaAI/`, then zip that entire folder.
 Keep both `OmegaAI/` and all generated ZIPs gitignored.
+After building and verifying an updated ZIP, delete previous Omega AI version ZIPs from this project's root.
+Keep only the current ZIP; do not retain or move older ZIPs into an archive folder.
 Exclude source, tests, development documentation, build tools, and private reference material from the ZIP.
 Include required mission resources, LunaLib icon registration, compiled code, and the appropriate local version metadata.
 Never install or copy a build into the game's mods folder.
