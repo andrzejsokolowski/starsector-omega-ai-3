@@ -6,6 +6,13 @@ They do not run the Starsector engine or establish an improvement in battle outc
 The experimental coordination still requires in-game validation.
 Version 0.1.1 adds the missing mission text that prevented startup in 0.1.0.
 
+The [first Observe run](observations/2026-09-11-observe-01.md) records a player victory with one Wolf lost.
+It also records zero Omega orders and zero proposals in a setup with 248 active mods.
+The report separates those facts from missing controller data and the AI Tweaks conflict that affects the next comparison.
+The [first Coordinate run](observations/2026-09-11-coordinate-01.md) records a reported total loss with zero accepted Omega orders.
+AI Tweaks fleet cohesion was still enabled.
+Local build 0.1.2 adds labels and eligibility diagnostics to make that blocked state visible.
+
 The build compiles against the installed Starsector and LunaLib JARs.
 It also scans the mod classes for blocked filesystem and reflection APIs.
 Packaging compares the JAR with current compiled classes and the source fingerprint.
@@ -78,6 +85,12 @@ The log distinguishes a proposal from an accepted assignment.
 An accepted assignment means that the task manager returned the expected ownership state.
 It does not mean that the ship reached the waypoint or that the decision helped.
 Record the visible result separately.
+
+For local build 0.1.2, also record the ship labels and the `observed`, `eligible`, `effective`, and `conflict` fields.
+The slash-separated counts show the player side first and enemy side second.
+An eligible count of zero needs an exclusion explanation before a behavior comparison is meaningful.
+The `Omega ship` records identify changed decisions, controller classes, assignments, and proposals.
+Enemy labels require the player's side to see that ship.
 
 ## Control and compatibility cases
 

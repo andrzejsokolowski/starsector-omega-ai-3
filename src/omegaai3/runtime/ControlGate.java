@@ -17,15 +17,25 @@ public final class ControlGate {
         return false;
     }
     public static boolean eligible(CombatEngineAPI engine, ShipAPI ship) {
-        if (!ship.isAlive() || ship.isExpired() || ship.isHulk() || ship.isRetreating() || ship.isAlly()
-                || ship.isFighter() || ship.isDrone() || ship.isStation() || ship.isStationModule() || ship.isPiece()
-                || ship.isShuttlePod() || ship.controlsLocked() || ship.isPhased()
-                || ship.getPhaseCloak() != null || ship.hasLaunchBays() || ship.isNonCombat(false)) return false;
-        if (engine.getPlayerShip() == ship && !engine.isUIAutopilotOn()) return false;
-        if (ship.getFluxTracker().isOverloadedOrVenting()) return false;
-        if (ship.getSystem() != null && ship.getSystem().isOn()) return false;
+        return blockReason(engine, ship).isEmpty();
+    }
+    public static String blockReason(CombatEngineAPI engine, ShipAPI ship) {
+        if (!ship.isAlive() || ship.isExpired() || ship.isHulk()) return "Ship inactive";
+        if (ship.isRetreating()) return "Retreating";
+        if (ship.isAlly()) return "Allied fleet retains control";
+        if (ship.isFighter() || ship.isDrone() || ship.isShuttlePod()) return "Fighter or drone pilot";
+        if (ship.isStation() || ship.isStationModule() || ship.isPiece()) return "Station or module";
+        if (ship.controlsLocked()) return "Ship controls locked";
+        if (ship.isPhased() || ship.getPhaseCloak() != null) return "Phase ship retains control";
+        if (ship.hasLaunchBays()) return "Carrier retains control";
+        if (ship.isNonCombat(false)) return "Noncombat ship";
+        if (engine.getPlayerShip() == ship && !engine.isUIAutopilotOn()) return "Manual player control";
+        if (ship.getFluxTracker().isOverloadedOrVenting()) return "Overloaded or venting";
+        if (ship.getSystem() != null && ship.getSystem().isOn()) return "Active ship system";
         var ai = ship.getShipAI();
-        if (ai == null || !knownPilot(ai.getClass().getName())) return false;
-        return !externallyControlled(ship.getCustomData());
+        if (ai == null) return "No ship AI";
+        if (!knownPilot(ai.getClass().getName())) return "Custom or wrapped ship AI";
+        if (externallyControlled(ship.getCustomData())) return "RTSAssist control";
+        return "";
     }
 }

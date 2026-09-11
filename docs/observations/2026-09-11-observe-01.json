@@ -1,0 +1,405 @@
+{
+  "run_id": "2026-09-11-observe-01",
+  "purpose": "First user-reported Fleet Trial without Coordinate mode",
+  "capture_utc": "2026-09-10T23:38:52Z",
+  "snapshot_bytes": 47239157,
+  "snapshot_lines": 297942,
+  "snapshot_sha256": "15499898d3f77e8d8d50b8b5ccf76e65e982cc2217ba4112a63035506b658de9",
+  "private_snapshot": ".private/test-runs/20260910T233852Z-observe-01/starsector.log",
+  "mission_id": "omega_ai3_trial",
+  "mission_identity_basis": "User report, with matching mission resources loaded in this session",
+  "mod_version": "0.1.1",
+  "release_commit": "aa5829040e306d6bcfa17a5c76159f76a8eccb45",
+  "installed_jar_sha256": "473dc1eef5977332f9ff283f063fdd83418d6d209f2c7cad0bfe52048543f4e5",
+  "installed_jar_matches_workspace": true,
+  "user_report": {
+    "winner": "player",
+    "friendly_losses": [
+      {
+        "hull": "Wolf",
+        "count": 1
+      }
+    ],
+    "flagship_behavior": "Like vanilla",
+    "flagship_autopilot": null
+  },
+  "summary_record_count": 21,
+  "rounded_end_simulation_seconds": 199,
+  "log_clock_span_seconds": 150.158,
+  "peak_logged_plan_ms": 12.12,
+  "proposal_event_count": 0,
+  "cumulative_orders_accepted": 0,
+  "cumulative_orders_rejected": 0,
+  "omega_warning_or_error_count": 0,
+  "other_warning_error_counts": [
+    {
+      "logger": "org.histidine.chatter.ChatterLine",
+      "level": "WARN",
+      "count": 20
+    },
+    {
+      "logger": "lunalib.lunaSettings.LunaSettings",
+      "level": "ERROR",
+      "count": 8
+    }
+  ],
+  "active_mod_count_from_startup": 248,
+  "selected_active_mods": [
+    {
+      "name": "AI Tweaks",
+      "id": "aitweaks",
+      "version": "2.2.10",
+      "source_line": 54829
+    },
+    {
+      "name": "LazyLib",
+      "id": "lw_lazylib",
+      "version": "3.0.0",
+      "source_line": 54926
+    },
+    {
+      "name": "LunaLib",
+      "id": "lunalib",
+      "version": "2.0.5",
+      "source_line": 54932
+    },
+    {
+      "name": "Omega AI",
+      "id": "omega_ai3",
+      "version": "0.1.1",
+      "source_line": 54963
+    },
+    {
+      "name": "RTSAssist",
+      "id": "RTSAssist",
+      "version": "0.1.9c",
+      "source_line": 54974
+    },
+    {
+      "name": "Ship Mastery System",
+      "id": "shipmasterysystem",
+      "version": "2.0.8",
+      "source_line": 54997
+    },
+    {
+      "name": "SpeedUp",
+      "id": "speedUp",
+      "version": "1.2.2",
+      "source_line": 55004
+    },
+    {
+      "name": "Star Wars Combat AI",
+      "id": "star_wars_combat",
+      "version": "1.01",
+      "source_line": 55005
+    },
+    {
+      "name": "StopStackingMe",
+      "id": "stopstackingme",
+      "version": "1.0.2",
+      "source_line": 55012
+    },
+    {
+      "name": "Vanilla Weapon Rebalance",
+      "id": "Blitzmo",
+      "version": "1.1.0",
+      "source_line": 55037
+    }
+  ],
+  "followup_settings_observation": {
+    "basis": "Read from saved LunaSettings after battle; not a battle-time configuration event log",
+    "omega_mode": "Coordinate",
+    "omega_settings_last_write_local": "2026-09-11 01:38:36 Europe/Warsaw",
+    "aitweaks_enable_fleet_cohesion_ai": true,
+    "aitweaks_settings_last_write_local": "2026-09-11 01:30:16 Europe/Warsaw",
+    "coordinate_guard_consequence": "Omega blocks issuing orders while AI Tweaks fleet cohesion is enabled",
+    "not_a_complete_explanation_for_zero_proposals": true
+  },
+  "unmeasured": [
+    "Controller identity per ship",
+    "Eligibility counts and rejection reasons",
+    "Orders per ship",
+    "Target history",
+    "Weapon reach and support history",
+    "Positions and chase durations",
+    "Damage and hull states",
+    "Winner and losses from engine events",
+    "Flagship autopilot state",
+    "Mean and percentile plan time"
+  ],
+  "samples": [
+    {
+      "source_line": 296992,
+      "log_elapsed_ms": 393179,
+      "mode": "observe",
+      "t": 0,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 0.0
+    },
+    {
+      "source_line": 297428,
+      "log_elapsed_ms": 410597,
+      "mode": "observe",
+      "t": 10,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297429,
+      "log_elapsed_ms": 420290,
+      "mode": "observe",
+      "t": 20,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297430,
+      "log_elapsed_ms": 429989,
+      "mode": "observe",
+      "t": 30,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297470,
+      "log_elapsed_ms": 440580,
+      "mode": "observe",
+      "t": 40,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297511,
+      "log_elapsed_ms": 450303,
+      "mode": "observe",
+      "t": 50,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297571,
+      "log_elapsed_ms": 460122,
+      "mode": "observe",
+      "t": 60,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297572,
+      "log_elapsed_ms": 469872,
+      "mode": "observe",
+      "t": 70,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297612,
+      "log_elapsed_ms": 479566,
+      "mode": "observe",
+      "t": 80,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297670,
+      "log_elapsed_ms": 488699,
+      "mode": "observe",
+      "t": 90,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297671,
+      "log_elapsed_ms": 494162,
+      "mode": "observe",
+      "t": 100,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297672,
+      "log_elapsed_ms": 500202,
+      "mode": "observe",
+      "t": 110,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297673,
+      "log_elapsed_ms": 505080,
+      "mode": "observe",
+      "t": 120,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297693,
+      "log_elapsed_ms": 509933,
+      "mode": "observe",
+      "t": 130,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297713,
+      "log_elapsed_ms": 514784,
+      "mode": "observe",
+      "t": 140,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297733,
+      "log_elapsed_ms": 519627,
+      "mode": "observe",
+      "t": 150,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297734,
+      "log_elapsed_ms": 524470,
+      "mode": "observe",
+      "t": 160,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297774,
+      "log_elapsed_ms": 529313,
+      "mode": "observe",
+      "t": 170,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297776,
+      "log_elapsed_ms": 534155,
+      "mode": "observe",
+      "t": 180,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297834,
+      "log_elapsed_ms": 538993,
+      "mode": "observe",
+      "t": 190,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    },
+    {
+      "source_line": 297835,
+      "log_elapsed_ms": 543337,
+      "mode": "battle ended",
+      "t": 199,
+      "proposals": 0,
+      "active": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "unreadable": 0,
+      "projectile-reach-bounds": 0,
+      "max-plan-ms": 12.12
+    }
+  ]
+}

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2 - local test build
+
+- Added ship decision labels with Omega's action, eligibility reason, controller, current assignment, and public target.
+- Added explicit blocked status when another fleet coordinator prevents Omega orders.
+- Added observed and eligible ship counts and changed ship decisions to diagnostic logs.
+- Added control-label updates while paused without issuing new orders.
+- Kept the public update feed on the last published release while packaging local build metadata separately.
+- Added an explicit LazyLib dependency for the decision labels.
+
 ## 0.1.1
 
 - Fixed a startup crash caused by the missing Fleet Trial mission briefing file.

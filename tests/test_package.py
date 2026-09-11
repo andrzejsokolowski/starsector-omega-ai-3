@@ -15,7 +15,18 @@ spec.loader.exec_module(package)
 
 class PackagingTests(unittest.TestCase):
     def setUp(self):
-        self.payload = {name: (ROOT / name).read_bytes() for name in package.FILES}
+        self.payload = package.read_payload()
+
+    def test_local_version_does_not_mutate_the_published_feed_or_invent_a_download(self):
+        original = (ROOT / "omega_ai.version").read_bytes()
+        published = json.loads(original)
+        before = json.dumps(published, sort_keys=True)
+        local = package.runtime_version(published, "0.9.9", "0.98a-RC8")
+        self.assertEqual("0.9.9", package.version_string(local))
+        self.assertEqual(published["directDownloadURL"], local["directDownloadURL"])
+        self.assertEqual(published["masterVersionFile"], local["masterVersionFile"])
+        self.assertEqual(before, json.dumps(published, sort_keys=True))
+        self.assertEqual(original, (ROOT / "omega_ai.version").read_bytes())
 
     def test_every_registered_mission_has_its_startup_resources(self):
         self.assertEqual(["omega_ai3_trial"], package.inspect_resources(self.payload))

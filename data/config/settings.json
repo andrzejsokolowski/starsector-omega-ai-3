@@ -8,6 +8,7 @@
     "enemyFleet": true,
     "simulator": true,
     "showStatus": true,
-    "logDecisions": false
+    "logDecisions": false,
+    "decisionLabels": true
   }
 }

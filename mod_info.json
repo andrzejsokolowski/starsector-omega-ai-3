@@ -2,7 +2,7 @@
   "id": "omega_ai3",
   "name": "Omega AI",
   "author": "Oddisz",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "utility": "true",
   "description": "Early alpha of a fleet coordination AI. Observe proposed regrouping decisions, or enable experimental coordination to help unsupported ships regroup and break futile pursuits. Includes live diagnostics and a repeatable fleet trial. Starts in Observe mode; select Coordinate in LunaLib to test fleet orders.",
   "gameVersion": "0.98a-RC8",
@@ -10,5 +10,5 @@
   "jars": ["jars/OmegaAI.jar"],
   "modPlugin": "omegaai3.OmegaModPlugin",
   "updateCheckURL": "https://raw.githubusercontent.com/andrzejsokolowski/starsector-omega-ai-3/main/omega_ai.version",
-  "dependencies": [{"id": "lunalib", "name": "LunaLib", "version": {"major": "2", "minor": "0", "patch": "0"}}]
+  "dependencies": [{"id": "lunalib", "name": "LunaLib", "version": {"major": "2", "minor": "0", "patch": "0"}}, {"id": "lw_lazylib", "name": "LazyLib"}]
 }

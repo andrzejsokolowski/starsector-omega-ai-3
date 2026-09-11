@@ -5,4 +5,5 @@ omega3_player,Player fleet,Boolean,true,,Include your autonomous ships. Your man
 omega3_enemy,Enemy fleet,Boolean,true,,Include eligible enemy ships. Existing enemy commander orders are preserved.,,,General
 omega3_simulator,Combat simulator,Boolean,true,,Include refit simulations and the fleet trial.,,,General
 omega3_status,Combat status,Boolean,true,,Show the current mode and proposal counts in the combat status area.,,,Diagnostics
+omega3_labels,Ship decision labels,Boolean,true,,Show Omega decisions and control exclusions above visible ships. Labels describe Omega coordination and the current pilot and assignment.,,,Diagnostics
 omega3_log,Log decisions,Boolean,false,,Record changed proposals and periodic diagnostics in starsector.log. Useful when comparing Observe and Coordinate.,,,Diagnostics

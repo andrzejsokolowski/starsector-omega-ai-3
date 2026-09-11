@@ -31,7 +31,8 @@ public final class OmegaSettings implements LunaSettingsListener {
             current = new Options(value("omega3_enabled", defaults.optBoolean("enabled", true)), "Coordinate".equals(mode),
                     value("omega3_player", defaults.optBoolean("playerFleet", true)), value("omega3_enemy", defaults.optBoolean("enemyFleet", true)),
                     value("omega3_simulator", defaults.optBoolean("simulator", true)), value("omega3_status", defaults.optBoolean("showStatus", true)),
-                    value("omega3_log", defaults.optBoolean("logDecisions", false)), conflict);
+                    value("omega3_log", defaults.optBoolean("logDecisions", false)), conflict,
+                    value("omega3_labels", defaults.optBoolean("decisionLabels", true)));
         } catch (Exception e) {
             // Configuration failure cannot enable experimental orders.
             current = new Options(true, false, true, true, true, true, false, "Settings unavailable; observing only");

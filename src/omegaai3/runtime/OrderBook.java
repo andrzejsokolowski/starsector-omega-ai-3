@@ -8,13 +8,14 @@ import omegaai3.plan.FleetPlanner.Proposal;
 import org.lwjgl.util.vector.Vector2f;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Function;
 
 /** Owns only individually created rally assignments. Never cancels an unrelated task. */
 public final class OrderBook {
     public enum Result { CREATED, REFRESHED, BLOCKED, REJECTED }
     private static final double EXPIRY = 1.25, MAX_DURATION = 12, STALL = 6, COOLDOWN = 8;
     private final CombatEngineAPI engine;
-    private final Predicate<ShipAPI> pilotAllowed;
+    private final Function<ShipAPI, String> pilotProblem;
     private final Map<ShipAPI, Lease> leases = new IdentityHashMap<>();
     private final Map<ShipAPI, Double> cooldowns = new IdentityHashMap<>();
 
@@ -24,31 +25,51 @@ public final class OrderBook {
         final AssignmentInfo assignment;
         final AssignmentTargetAPI waypoint;
         final double created;
+        final String purpose;
         Vec expected;
         double expires, progressAt, distance;
-        Lease(ShipAPI ship, CombatTaskManagerAPI tasks, AssignmentInfo assignment, AssignmentTargetAPI waypoint, Vec expected, double now) {
+        Lease(ShipAPI ship, CombatTaskManagerAPI tasks, AssignmentInfo assignment, AssignmentTargetAPI waypoint, Vec expected, double now, String purpose) {
             this.ship = ship; this.tasks = tasks; this.assignment = assignment; this.waypoint = waypoint;
             this.expected = expected; created = now; progressAt = now; expires = now + EXPIRY;
+            this.purpose = purpose;
             distance = expected.distance(new Vec(ship.getLocation().x, ship.getLocation().y));
         }
     }
 
-    public OrderBook(CombatEngineAPI engine) { this(engine, ship -> ControlGate.eligible(engine, ship)); }
-    public OrderBook(CombatEngineAPI engine, Predicate<ShipAPI> pilotAllowed) { this.engine = engine; this.pilotAllowed = pilotAllowed; }
+    public OrderBook(CombatEngineAPI engine) { this.engine = engine; pilotProblem = ship -> ControlGate.blockReason(engine, ship); }
+    public OrderBook(CombatEngineAPI engine, Predicate<ShipAPI> pilotAllowed) {
+        this.engine = engine; pilotProblem = ship -> pilotAllowed.test(ship) ? "" : "Pilot retains control";
+    }
     public int active() { return leases.size(); }
 
     public boolean canManage(ShipAPI ship, Options options, double now) {
+        return blockReason(ship, options, now).isEmpty();
+    }
+
+    public String blockReason(ShipAPI ship, Options options, double now) {
         try {
-            if (!options.enabled() || !options.includes(ship.getOwner()) || !pilotAllowed.test(ship)) return false;
-            if (engine.getPlayerShip() == ship && !engine.isUIAutopilotOn()) return false;
-            if (ship.getOwner() < 0 || ship.getOwner() > 1 || ship.isAlly() || !ship.isAlive() || ship.isRetreating()) return false;
-            if (cooldowns.getOrDefault(ship, 0d) > now) return false;
+            if (!options.enabled()) return "Omega disabled";
+            if (!options.includes(ship.getOwner())) return "Fleet excluded in settings";
+            String pilot = pilotProblem.apply(ship);
+            if (!pilot.isEmpty()) return pilot;
+            if (engine.getPlayerShip() == ship && !engine.isUIAutopilotOn()) return "Manual player control";
+            if (ship.getOwner() < 0 || ship.getOwner() > 1 || ship.isAlly() || !ship.isAlive() || ship.isRetreating()) return "Ship unavailable";
+            if (cooldowns.getOrDefault(ship, 0d) > now) return "Regroup cooldown";
             CombatTaskManagerAPI tasks = engine.getFleetManager(ship.getOwner()).getTaskManager(false);
-            if (globalDirective(tasks) || engine.getFleetManager(1 - ship.getOwner()).getTaskManager(false).isInFullRetreat()) return false;
+            if (globalDirective(tasks)) return "Fleet directive: avoid, ignore, assault, or retreat";
+            if (engine.getFleetManager(1 - ship.getOwner()).getTaskManager(false).isInFullRetreat()) return "Enemy fleet retreating";
             AssignmentInfo current = tasks.getAssignmentFor(ship);
             Lease lease = leases.get(ship);
-            return current == null || lease != null && unchanged(lease, current);
-        } catch (RuntimeException e) { return false; }
+            return current == null || lease != null && unchanged(lease, current) ? "" : "Existing " + current.getType() + " order";
+        } catch (RuntimeException e) { return "Order or controller state unreadable"; }
+    }
+
+    public String activePurpose(ShipAPI ship) { Lease lease = leases.get(ship); return lease == null ? "" : lease.purpose; }
+    public String assignmentName(ShipAPI ship) {
+        try {
+            AssignmentInfo current = engine.getFleetManager(ship.getOwner()).getTaskManager(false).getAssignmentFor(ship);
+            return current == null ? "none" : current.getType().name();
+        } catch (RuntimeException e) { return "unreadable"; }
     }
 
     private boolean globalDirective(CombatTaskManagerAPI tasks) {
@@ -97,7 +118,7 @@ public final class OrderBook {
             assignment = tasks.createAssignment(CombatAssignmentType.RALLY_TASK_FORCE, waypoint, false);
             tasks.setAssignmentWeight(assignment, 0);
             Lease lease = new Lease(ship, tasks, assignment, waypoint,
-                    new Vec(waypoint.getLocation().x, waypoint.getLocation().y), now);
+                    new Vec(waypoint.getLocation().x, waypoint.getLocation().y), now, proposal.reason() + ": " + proposal.detail());
             leases.put(ship, lease); // retain ownership before any further call can fail
             tasks.giveAssignment(member, assignment, false);
             if (unchanged(lease, tasks.getAssignmentFor(ship))) return Result.CREATED;

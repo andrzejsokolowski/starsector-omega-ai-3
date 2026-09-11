@@ -6,6 +6,8 @@ def gamePath = providers.gradleProperty('starsectorPath').orElse(providers.envir
         .getOrElse(local.getProperty('starsectorPath', 'D:/Games/StarSector'))
 def core = file("$gamePath/starsector-core")
 def luna = fileTree(dir: "$gamePath/mods", include: 'LunaLib*/jars/LunaLib.jar')
+def lazy = fileTree(dir: "$gamePath/mods", include: 'LazyLib*/jars/LazyLib.jar')
+def lazyRuntime = fileTree(dir: "$gamePath/mods", include: 'LazyLib*/jars/internal/Kotlin-Runtime.jar')
 def metadata = new groovy.json.JsonSlurper().parse(file('mod_info.json'))
 version = metadata.version
 def releaseInputs = files(fileTree('src') { include '**/*.java' }, 'build.gradle', 'settings.gradle', 'gradle.properties', 'mod_info.json')
@@ -27,16 +29,20 @@ repositories { mavenCentral() }
 dependencies {
     compileOnly fileTree(dir: core, include: '*.jar')
     compileOnly luna
+    compileOnly lazy
+    compileOnly lazyRuntime
     testImplementation fileTree(dir: core, include: '*.jar')
     testImplementation luna
+    testImplementation lazy
+    testImplementation lazyRuntime
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 tasks.register('checkGameDependencies') {
     doLast {
-        if (!new File(core, 'starfarer.api.jar').exists() || luna.isEmpty()) {
-            throw new GradleException('Set starsectorPath in local.properties or STARSECTOR_HOME. Starsector 0.98a and LunaLib are required to compile.')
+        if (!new File(core, 'starfarer.api.jar').exists() || luna.isEmpty() || lazy.isEmpty()) {
+            throw new GradleException('Set starsectorPath in local.properties or STARSECTOR_HOME. Starsector 0.98a, LunaLib, and LazyLib are required to compile.')
         }
     }
 }

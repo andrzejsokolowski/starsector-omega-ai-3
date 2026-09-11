@@ -45,6 +45,37 @@ def read_manifest(data: bytes) -> dict[str, str]:
     return dict(line.split(": ", 1) for line in unfolded.splitlines() if ": " in line)
 
 
+def version_tuple(version: str) -> tuple[int, int, int]:
+    parts = version.split(".")
+    require(len(parts) == 3 and all(part.isdecimal() for part in parts), "Use a numeric three-part build version.")
+    return tuple(int(part) for part in parts)
+
+
+def version_string(data: dict) -> str:
+    v = data["modVersion"]
+    return f"{v['major']}.{v['minor']}.{v['patch']}"
+
+
+def runtime_version(published: dict, local_version: str, game_version: str) -> dict:
+    # The tracked file is the public update feed. Local test builds get their own
+    # installed version without advertising an unpublished download to other users.
+    major, minor, patch = version_tuple(local_version)
+    result = dict(published)
+    result["modVersion"] = {"major": major, "minor": minor, "patch": str(patch)}
+    result["starsectorVersion"] = game_version
+    return result
+
+
+def read_payload() -> dict[str, bytes]:
+    payload = {name: (ROOT / name).read_bytes() for name in FILES}
+    mod = json.loads(payload["mod_info.json"])
+    published = json.loads(payload["omega_ai.version"])
+    if mod["version"] != version_string(published):
+        local = runtime_version(published, mod["version"], mod["gameVersion"])
+        payload["omega_ai.version"] = (json.dumps(local, indent=2) + "\n").encode()
+    return payload
+
+
 def inspect_resources(payload: dict[str, bytes]) -> list[str]:
     def needed(name: str) -> bytes:
         require(name in payload and bool(payload[name].strip()), f"Missing or empty runtime resource: {name}")
@@ -97,8 +128,12 @@ def inspect_payload(payload: dict[str, bytes]) -> str:
     require(mod["id"] == "omega_ai3", "The mod ID must remain separate from earlier Omega AI projects.")
     require(mod["gameVersion"] == version_file["starsectorVersion"], "The game versions do not match.")
     require(mod["updateCheckURL"] == version_file["masterVersionFile"] == RAW, "The update URLs do not match.")
-    require(version_file["directDownloadURL"] == f"{REPO}/releases/download/v{version}/Omega-AI-{version}.zip",
-            "The download URL does not name the release ZIP.")
+    published = json.loads((ROOT / "omega_ai.version").read_bytes())
+    published_version = version_string(published)
+    require(version_tuple(version) >= version_tuple(published_version), "The local build predates the published update feed.")
+    require(version_file["directDownloadURL"] == published["directDownloadURL"]
+            == f"{REPO}/releases/download/v{published_version}/Omega-AI-{published_version}.zip",
+            "The update URL must keep pointing to the last published ZIP during local development.")
     require(list(csv.reader(io.StringIO(payload["data/config/version/version_files.csv"].decode())))
             == [["version file"], ["omega_ai.version"]], "The version CSV registration is incorrect.")
     inspect_forum_metadata(mod, version_file)
@@ -205,7 +240,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--verify", type=Path, help="Inspect an existing or downloaded ZIP without replacing it.")
     args = parser.parse_args()
-    payload = {name: (ROOT / name).read_bytes() for name in FILES}
+    payload = read_payload()
     version = inspect_payload(payload)
     tests = inspect_tests()
     output = args.verify or ROOT / f"Omega-AI-{version}.zip"
@@ -215,6 +250,9 @@ def main() -> None:
         print(f"Staged folder: {stage}")
     inspect_archive(output, payload)
     print(f"Version: {version}; tests: {tests}; files: {len(payload)}")
+    published_version = version_string(json.loads((ROOT / "omega_ai.version").read_bytes()))
+    if version != published_version:
+        print(f"Local test build only. Public update feed remains at {published_version}.")
     print(f"ZIP: {output.resolve()}")
     print(f"SHA-256: {hashlib.sha256(output.read_bytes()).hexdigest()}")
 
