@@ -175,7 +175,8 @@ public final class OmegaCombatPlugin extends BaseEveryFrameCombatPlugin {
     @Override public void renderInUICoords(ViewportAPI viewport) {
         if (engine == null || overlay == null || Global.getCurrentState() == GameState.TITLE) return;
         Options options = OmegaSettings.current();
-        overlay.render(engine, viewport, labels, options.enabled() && options.labels() && !failed && !ended);
+        overlay.render(engine, viewport, labels, options.mayIssueOrders() && options.labels() && !failed && !ended,
+                entry -> entry.view().reason().equals(orders.activePurpose(entry.ship())) && orders.canManage(entry.ship(), options, clock));
     }
 
     private void refreshPausedLabels(Options options) {

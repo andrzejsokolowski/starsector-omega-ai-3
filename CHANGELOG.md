@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - local test build
+
+- Simplified ship labels to one short active action: Regrouping, Waiting for support, or Disengaging.
+- Removed ship labels when Omega has no active order, including Observe mode and excluded ships.
+
 ## 0.1.2 - local test build
 
 - Added ship decision labels with Omega's action, eligibility reason, controller, current assignment, and public target.

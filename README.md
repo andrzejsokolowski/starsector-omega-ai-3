@@ -2,7 +2,7 @@
 
 <img src="omega-ai-icon.png" alt="Omega AI emblem" width="192">
 
-Omega AI 0.1.2 is a local test build of an experimental fleet coordinator for Starsector 0.98a-RC8.
+Omega AI 0.1.3 is a local test build of an experimental fleet coordinator for Starsector 0.98a-RC8.
 This first alpha introduces observation, temporary regrouping orders, and a mission for comparing their effects.
 It does not yet implement the full combat AI described in the [design](docs/DESIGN.md).
 Combat quality and compatibility still need in-game testing.
@@ -28,7 +28,7 @@ The mod requires Starsector 0.98a-RC8, LunaLib 2.0.0 or later, and LazyLib.
 The release ZIP contains an `OmegaAI` folder for a mod manager.
 The mod ID is `omega_ai3`, which distinguishes this project from earlier Omega AI attempts.
 
-1. Use `Omega-AI-0.1.2.zip` from the local build described below.
+1. Use `Omega-AI-0.1.3.zip` from the local build described below.
 2. Install the ZIP through your mod manager.
 3. Enable Omega AI and LunaLib.
 4. Open LunaLib and select Omega AI.
@@ -44,29 +44,14 @@ The [test guide](docs/TESTING.md) explains how to compare runs and report failur
 
 ## Ship decision helper
 
-Ship decision labels start enabled in this local build.
-LunaLib → Omega AI → Diagnostics → Ship decision labels controls the display.
-Labels appear above visible ships while the combat HUD is visible.
-They identify Omega's decision and do not claim to expose the stock pilot's internal reasoning.
+One small action label appears above a ship while Omega directs it: Regrouping, Waiting for support, or Disengaging.
+The label disappears when that action ends, you take control, or Omega cannot control the ship.
+Observe mode shows no ship action labels.
+The display starts enabled and uses LunaLib → Omega AI → Diagnostics → Ship action labels.
 
-| Label | Meaning |
-| --- | --- |
-| BLOCKED | A detected fleet coordinator conflict prevents Omega orders |
-| EXCLUDED | The ship retains other control, with the reason shown below |
-| OBSERVE | Omega records a proposal without issuing it |
-| OWNED RALLY | An active rally assignment belongs to Omega, with its original purpose shown |
-| NO CHANGE | Omega has no active order for this eligible ship |
-
-The label also shows the controller class, current fleet assignment, and public maneuver or ship target.
-That target does not represent every weapon's selected target.
-Planning information updates at each planning pass, at most four times per simulation second.
-Control status also refreshes while paused, so a new player order or manual takeover replaces an outdated action label.
-Rendering failures disable the labels for that battle without stopping coordination.
-
-If the header says Blocked, read the displayed conflict before judging a Coordinate run.
+Detailed decisions and control exclusions remain available through Log decisions.
+The combat status reports a fleet coordinator conflict when one blocks Omega orders.
 For a matched comparison, disable AI Tweaks → Ship AI → Enable Fleet Cohesion AI in both runs.
-Changing that option only for Coordinate also changes the baseline.
-The [recorded trials](docs/TESTING.md) explain why the first two results do not establish a coordination benefit or regression.
 
 ## Control and compatibility
 
@@ -106,7 +91,7 @@ python package.py
 
 Alternatively, put `starsectorPath=D:/Games/StarSector` in an untracked `local.properties` file.
 Python 3.10 or later runs the packaging script without additional packages.
-The script creates `OmegaAI/` and `Omega-AI-0.1.2.zip` directly in the mod project root.
+The script creates `OmegaAI/` and `Omega-AI-0.1.3.zip` directly in the mod project root.
 Both generated outputs are gitignored.
 The staging folder contains only runtime files, including the mission briefing and LunaLib icon registration.
 The ZIP contains that entire folder, so extracting it into `/mods` creates `mods/OmegaAI/mod_info.json`.
@@ -118,7 +103,7 @@ It never installs files into the game.
 To inspect an existing ZIP, run:
 
 ```powershell
-python package.py --verify Omega-AI-0.1.2.zip
+python package.py --verify Omega-AI-0.1.3.zip
 ```
 
 The [changelog](CHANGELOG.md) lists release changes.
@@ -128,6 +113,6 @@ The [forum post draft](docs/FORUM-POST.txt) includes the icon and release link f
 No forum topic exists yet, so the metadata does not contain a topic ID.
 The registered version tracker points to this repository's raw `omega_ai.version` file and the matching GitHub release asset.
 That tracked file remains at published version 0.1.1.
-The packager writes version 0.1.2 into the staged version file while retaining the last published download URL.
+The packager writes version 0.1.3 into the staged version file while retaining the last published download URL.
 It does not update the public feed or advertise an unavailable release asset.
 New tags and GitHub releases wait for the joint decision to release 1.0.0.

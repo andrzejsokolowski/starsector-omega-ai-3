@@ -2,7 +2,7 @@
   "id": "omega_ai3",
   "name": "Omega AI",
   "author": "Oddisz",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "utility": "true",
   "description": "Early alpha of a fleet coordination AI. Observe proposed regrouping decisions, or enable experimental coordination to help unsupported ships regroup and break futile pursuits. Includes live diagnostics and a repeatable fleet trial. Starts in Observe mode; select Coordinate in LunaLib to test fleet orders.",
   "gameVersion": "0.98a-RC8",

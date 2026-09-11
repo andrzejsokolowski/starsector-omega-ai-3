@@ -25,5 +25,13 @@ Exclude source, tests, development documentation, build tools, and private refer
 Include required mission resources, LunaLib icon registration, compiled code, and the appropriate local version metadata.
 Never install or copy a build into the game's mods folder.
 
+## Ship action labels
+
+Show one short action above a ship only while Omega actively directs it.
+Use behavior words such as Regrouping, Waiting for support, or Disengaging for the implemented actions.
+Do not label behavior that Omega does not implement or an unissued proposal.
+Hide the ship label when Omega is observing, blocked, excluded, or has no active order.
+Keep controller names, eligibility reasons, assignments, and other technical diagnostics in the log, not above ships.
+
 Instruction-only changes do not require a mod version bump, a new ZIP, or a release.
 After the joint 1.0.0 decision, follow the workspace release workflow for authorized releases.

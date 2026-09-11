@@ -64,7 +64,12 @@ public final class OrderBook {
         } catch (RuntimeException e) { return "Order or controller state unreadable"; }
     }
 
-    public String activePurpose(ShipAPI ship) { Lease lease = leases.get(ship); return lease == null ? "" : lease.purpose; }
+    public String activePurpose(ShipAPI ship) {
+        Lease lease = leases.get(ship);
+        if (lease == null) return "";
+        try { return unchanged(lease, lease.tasks.getAssignmentFor(ship)) ? lease.purpose : ""; }
+        catch (RuntimeException e) { return ""; }
+    }
     public String assignmentName(ShipAPI ship) {
         try {
             AssignmentInfo current = engine.getFleetManager(ship.getOwner()).getTaskManager(false).getAssignmentFor(ship);

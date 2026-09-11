@@ -18,19 +18,24 @@ class DecisionDiagnosticsTest {
         var options = new Options(true, true, true, true, true, true, true, "AI Tweaks fleet cohesion is enabled");
         var view = DecisionView.describe(options, "Custom or wrapped ship AI", "", proposal, "mod.Wrapper", "none", "enemy");
         assertEquals("Blocked", options.effectiveMode());
-        assertEquals("BLOCKED", view.state()); assertTrue(view.label().contains("AI Tweaks"));
-        assertTrue(view.label().contains("Custom or wrapped")); assertTrue(view.label().contains("Proposed:"));
+        assertEquals("BLOCKED", view.state()); assertTrue(view.reason().contains("AI Tweaks"));
+        assertTrue(view.eligibility().contains("Custom or wrapped")); assertTrue(view.proposal().contains("REJOIN_GROUP"));
+        assertEquals("", view.label());
         assertFalse(options.mayIssueOrders());
     }
     @Test void observeProposalIsNotPresentedAsAnIssuedOrder() {
         var view = DecisionView.describe(Options.defaults(), "", "", proposal, "BasicShipAI", "none", "enemy");
-        assertEquals("OBSERVE", view.state()); assertTrue(view.label().contains("Proposed:"));
-        assertFalse(view.label().contains("OWNED RALLY"));
+        assertEquals("OBSERVE", view.state()); assertTrue(view.proposal().contains("REJOIN_GROUP"));
+        assertEquals("", view.label());
     }
     @Test void actualOwnedOrderKeepsItsOriginalReason() {
         var view = DecisionView.describe(coordinate, "", "WAIT_FOR_SUPPORT: Wait beside Heavy", proposal, "BasicShipAI", "RALLY_TASK_FORCE", "enemy");
         assertEquals("OWNED RALLY", view.state()); assertTrue(view.reason().contains("Wait beside Heavy"));
-        assertFalse(view.label().contains("Proposed:"));
+        assertEquals("Waiting for support", view.label());
+        assertEquals("Regrouping", DecisionView.describe(coordinate, "", "REJOIN_GROUP: Rejoin Anchor", null,
+                "BasicShipAI", "RALLY_TASK_FORCE", "enemy").label());
+        assertEquals("Disengaging", DecisionView.describe(coordinate, "", "BREAK_PURSUIT: Stop futile chase", null,
+                "BasicShipAI", "RALLY_TASK_FORCE", "enemy").label());
     }
     @Test void existingOrdersAndManualControlHaveExplicitReasons() {
         FakeCombat game = new FakeCombat(); var ship = game.add("ship"); var orders = new OrderBook(game.engine, s -> true);
@@ -55,6 +60,7 @@ class DecisionDiagnosticsTest {
         assertEquals("Fleet excluded in settings", orders.blockReason(ship.ship, enemyOnly, 0));
         var view = DecisionView.describe(coordinate, "", "", null, "BasicShipAI", "none", "unreported");
         assertEquals("NO CHANGE", view.state()); assertEquals("No regrouping proposal", view.reason());
+        assertEquals("", view.label());
     }
     @Test void diagnosticsAreReadOnly() {
         FakeCombat game = new FakeCombat(); var ship = game.add("ship"); var orders = new OrderBook(game.engine, s -> true);
@@ -67,7 +73,7 @@ class DecisionDiagnosticsTest {
         var active = DecisionView.describe(coordinate, "", "REJOIN_GROUP: Rejoin Anchor", proposal, "BasicShipAI", "RALLY_TASK_FORCE", "enemy");
         var manual = active.refreshControl(coordinate, "Manual player control", "", "none", "none");
         assertEquals("EXCLUDED", manual.state()); assertTrue(manual.reason().contains("Manual"));
-        assertFalse(manual.label().contains("OWNED RALLY"));
+        assertEquals("Regrouping", active.label()); assertEquals("", manual.label());
         assertEquals(active.proposal(), manual.proposal());
     }
 }

@@ -28,10 +28,12 @@ public record DecisionView(String state, String reason, String eligibility, Stri
         return new DecisionView(state, reason, eligibility, clean(controller), clean(assignment), clean(target), proposed);
     }
     public String label() {
-        String pilot = controller.substring(Math.max(0, controller.lastIndexOf('.') + 1));
-        String note = eligibility.equals("Eligible") || eligibility.equals(reason) ? "" : "\n" + eligibility;
-        String intent = !proposal.equals("none") && !state.equals("OWNED RALLY") ? "\nProposed: " + proposal : "";
-        return "Omega: " + state + "\n" + reason + note + intent + "\nPilot: " + pilot + " | Order: " + assignment + "\nTarget: " + target;
+        // The ship label describes only the active Omega action. Diagnostics stay in the log.
+        if (!state.equals("OWNED RALLY")) return "";
+        if (reason.startsWith("REJOIN_GROUP:")) return "Regrouping";
+        if (reason.startsWith("WAIT_FOR_SUPPORT:")) return "Waiting for support";
+        if (reason.startsWith("BREAK_PURSUIT:")) return "Disengaging";
+        return "";
     }
     public String eventKey() { return state + "|" + reason + "|" + eligibility + "|" + controller + "|" + assignment + "|" + proposal; }
     public static String clean(String value) { return value == null ? "unknown" : value.replace('\n', ' ').replace('\r', ' '); }

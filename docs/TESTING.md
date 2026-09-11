@@ -12,6 +12,7 @@ The report separates those facts from missing controller data and the AI Tweaks 
 The [first Coordinate run](observations/2026-09-11-coordinate-01.md) records a reported total loss with zero accepted Omega orders.
 AI Tweaks fleet cohesion was still enabled.
 Local build 0.1.2 adds labels and eligibility diagnostics to make that blocked state visible.
+Local build 0.1.3 limits ship labels to one active action and keeps eligibility details in the log.
 
 The build compiles against the installed Starsector and LunaLib JARs.
 It also scans the mod classes for blocked filesystem and reflection APIs.
@@ -86,11 +87,13 @@ An accepted assignment means that the task manager returned the expected ownersh
 It does not mean that the ship reached the waypoint or that the decision helped.
 Record the visible result separately.
 
-For local build 0.1.2, also record the ship labels and the `observed`, `eligible`, `effective`, and `conflict` fields.
+For local builds 0.1.2 and later, record the `observed`, `eligible`, `effective`, and `conflict` log fields.
 The slash-separated counts show the player side first and enemy side second.
 An eligible count of zero needs an exclusion explanation before a behavior comparison is meaningful.
 The `Omega ship` records identify changed decisions, controller classes, assignments, and proposals.
 Enemy labels require the player's side to see that ship.
+In 0.1.3, only ships under an active Omega order show an action label.
+Observe runs and excluded ships have no action label.
 
 ## Control and compatibility cases
 
