@@ -126,7 +126,7 @@ class Rc8HelmTest {
         assertTrue(commands.isEmpty()); assertNull(pilot.activeIntent());
         }
     }
-    @Test void installedPilotConsumesAnIntentAndExpiresItsLabel() {
+    @Test void engineWrappedPilotConsumesAnIntentAndExpiresItsLabel() {
         List<Ship.Oo> commands = new ArrayList<>(); Ship ship = ship(commands), target = ship(new ArrayList<>());
         when(ship.getSystem()).thenReturn(null); when(ship.getShield()).thenReturn(null);
         when(ship.getHullSize()).thenReturn(com.fs.starfarer.api.combat.ShipAPI.HullSize.DESTROYER);
@@ -136,10 +136,11 @@ class Rc8HelmTest {
         try (var singleton = mockStatic(com.fs.starfarer.combat.CombatEngine.class)) {
             singleton.when(com.fs.starfarer.combat.CombatEngine::getInstance).thenReturn(mock(com.fs.starfarer.combat.CombatEngine.class, RETURNS_DEEP_STUBS));
             var pilot = new omegaai3.runtime.OmegaShipAI(ship, new com.fs.starfarer.api.combat.ShipAIConfig(), engine, () -> true);
-            when(ship.getShipAI()).thenReturn(pilot); when(ship.getAI()).thenReturn(pilot);
+            var wrapper = new Ship.ShipAIWrapper(pilot);
+            when(ship.getShipAI()).thenReturn(wrapper); when(ship.getAI()).thenReturn(wrapper);
             pilot.publish(intent(new Vec(80, 0), 0), target);
             assertNull(pilot.activeIntent(), "Publishing alone must not display a label");
-            pilot.advance(.016f);
+            wrapper.advance(.016f);
             assertTrue(names(commands).contains("ACCELERATE"));
             assertNotNull(pilot.activeIntent());
             when(engine.getPlayerShip()).thenReturn(ship);
@@ -158,7 +159,7 @@ class Rc8HelmTest {
         when(tasks.getAssignmentFor(ship)).thenReturn(null);
         try (var singleton = mockStatic(com.fs.starfarer.combat.CombatEngine.class)) {
             singleton.when(com.fs.starfarer.combat.CombatEngine::getInstance).thenReturn(mock(com.fs.starfarer.combat.CombatEngine.class, RETURNS_DEEP_STUBS));
-            var original = new com.fs.starfarer.combat.ai.BasicShipAI(ship);
+            var original = new Ship.ShipAIWrapper(new com.fs.starfarer.combat.ai.BasicShipAI(ship));
             var current = new java.util.concurrent.atomic.AtomicReference<com.fs.starfarer.api.combat.ShipAIPlugin>(original);
             when(ship.getShipAI()).thenAnswer(call -> current.get());
             doAnswer(call -> { current.set(call.getArgument(0)); return null; }).when(ship).setShipAI(any());
@@ -184,6 +185,56 @@ class Rc8HelmTest {
             current.set(foreign);
             session.restoreAll();
             assertSame(foreign, current.get(), "Never overwrite another mod's replacement pilot");
+        }
+    }
+    @Test void combatPluginObservesPlansInstallsAndProducesRealThrust() {
+        List<Ship.Oo> commands = new ArrayList<>(); Ship ship = ship(commands), enemy = ship(new ArrayList<>());
+        for (Ship unit : List.of(ship, enemy)) {
+            when(unit.isAlive()).thenReturn(true); when(unit.getSystem()).thenReturn(null);
+            when(unit.getPhaseCloak()).thenReturn(null); when(unit.getShield()).thenReturn(null);
+            when(unit.getArmorGrid().getAverageArmorFraction()).thenReturn(1f); when(unit.getFleetMember().getDeploymentPointsCost()).thenReturn(10f);
+            when(unit.getHitpoints()).thenReturn(5000f); when(unit.getMaxHitpoints()).thenReturn(5000f);
+            when(unit.getFluxTracker().getMaxFlux()).thenReturn(10000f);
+            when(unit.getHullSize()).thenReturn(com.fs.starfarer.api.combat.ShipAPI.HullSize.DESTROYER);
+            var gun = mock(com.fs.starfarer.api.combat.WeaponAPI.class, RETURNS_DEEP_STUBS);
+            when(gun.getType()).thenReturn(com.fs.starfarer.api.combat.WeaponAPI.WeaponType.BALLISTIC);
+            when(gun.getLocation()).thenAnswer(call -> unit.getLocation());
+            when(gun.getRange()).thenReturn(600f); when(gun.getArc()).thenReturn(360f);
+            when(gun.getTurnRate()).thenReturn(360f); when(gun.getDerivedStats().getSustainedDps()).thenReturn(200f);
+            when(gun.getDerivedStats().getDamagePerShot()).thenReturn(100f);
+            when(unit.getAllWeapons()).thenReturn(List.of(gun));
+        }
+        when(ship.getId()).thenReturn("friend"); when(enemy.getId()).thenReturn("enemy");
+        when(ship.getLocation()).thenReturn(new Vector2f(-2000, 0)); when(enemy.getOwner()).thenReturn(1);
+        var engine = mock(com.fs.starfarer.api.combat.CombatEngineAPI.class, RETURNS_DEEP_STUBS);
+        when(engine.getShips()).thenReturn(List.of(ship, enemy)); when(engine.getPlayerShip()).thenReturn(ship);
+        when(engine.isUIAutopilotOn()).thenReturn(true); when(engine.isAwareOf(anyInt(), any())).thenReturn(true);
+        when(engine.getMapWidth()).thenReturn(10000f); when(engine.getMapHeight()).thenReturn(10000f);
+        when(engine.getFleetManager(0).getTaskManager(false).getAssignmentFor(ship)).thenReturn(null);
+        Options enabled = new Options(true, true, true, false, true, true, false, "");
+        var settings = mock(com.fs.starfarer.api.SettingsAPI.class);
+        when(settings.getVersionString()).thenReturn("0.98a-RC8");
+        try (var singleton = mockStatic(com.fs.starfarer.combat.CombatEngine.class);
+             var global = mockStatic(com.fs.starfarer.api.Global.class); var omega = mockStatic(OmegaSettings.class)) {
+            singleton.when(com.fs.starfarer.combat.CombatEngine::getInstance).thenReturn(mock(com.fs.starfarer.combat.CombatEngine.class, RETURNS_DEEP_STUBS));
+            global.when(com.fs.starfarer.api.Global::getSettings).thenReturn(settings);
+            global.when(com.fs.starfarer.api.Global::getCombatEngine).thenReturn(engine);
+            global.when(com.fs.starfarer.api.Global::getCurrentState).thenReturn(com.fs.starfarer.api.GameState.COMBAT);
+            omega.when(OmegaSettings::current).thenReturn(enabled);
+            var original = new com.fs.starfarer.combat.ai.BasicShipAI(ship);
+            var current = new java.util.concurrent.atomic.AtomicReference<com.fs.starfarer.api.combat.ShipAIPlugin>(original);
+            when(ship.getShipAI()).thenAnswer(call -> current.get());
+            when(ship.getAI()).thenAnswer(call -> current.get());
+            doAnswer(call -> { current.set(call.getArgument(0)); return null; }).when(ship).setShipAI(any());
+            var plugin = new OmegaCombatPlugin(); plugin.init(engine); plugin.advance(.25f, List.of());
+            var pilot = assertInstanceOf(omegaai3.runtime.OmegaShipAI.class, current.get());
+            assertNull(pilot.activeIntent());
+            pilot.advance(.016f);
+            assertNotNull(pilot.activeIntent()); assertTrue(names(commands).contains("ACCELERATE"));
+            assertTrue(plugin.statusLines(enabled).contains("Player: 1 under Omega control"));
+            omega.when(OmegaSettings::current).thenReturn(new Options(false, false, true, false, true, true, false, ""));
+            plugin.advance(0, List.of());
+            assertSame(original, current.get());
         }
     }
 }

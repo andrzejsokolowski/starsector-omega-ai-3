@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 - local development build
+
+- Replaced Observe/Coordinate with one Enable Omega AI switch that defaults to Yes.
+- Stopped old saved Observe selections from silently disabling enabled control.
+- Added a fixed combat HUD with active ship counts and reasons when no ships are controlled.
+- Identified AI Tweaks and RTSAssist pilot conflicts by name.
+- Allowed Starsector's own transparent pilot wrapper while preserving unknown mod controllers.
+- Updated the mission briefing and gameplay test instructions for the supported setup.
+
 ## 0.2.0 - local development build
 
 - Replaced temporary regrouping orders with direct target selection, facing, and movement control for ordinary combat ships.

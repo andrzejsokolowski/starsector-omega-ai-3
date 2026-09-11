@@ -9,7 +9,6 @@
   },
   "omega_ai3": {
     "enabled": true,
-    "mode": "Coordinate",
     "playerFleet": true,
     "enemyFleet": true,
     "simulator": true,

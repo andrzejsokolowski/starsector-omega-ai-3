@@ -14,8 +14,8 @@ public final class MissionDefinition implements MissionDefinitionPlugin {
         api.setFleetTagline(FleetSide.PLAYER, "Heavy anchor with fast escorts");
         api.setFleetTagline(FleetSide.ENEMY, "Mixed opposition and mobile distractions");
         api.addBriefingItem("Use autopilot for the flagship to compare autonomous fleets.");
-        api.addBriefingItem("Select Coordinate in LunaLib for direct Omega target and movement control.");
-        api.addBriefingItem("Action labels show executed movement decisions. Observe restores native pilots.");
+        api.addBriefingItem("Enable Omega AI defaults to Yes. Give your fleet Search & Destroy for autonomous control.");
+        api.addBriefingItem("The upper-left HUD shows active control or explains conflicts. AI Tweaks and RTSAssist pilots are unsupported.");
         api.addToFleet(FleetSide.PLAYER, "onslaught_Standard", FleetMemberType.SHIP, "Anchor", true);
         api.addToFleet(FleetSide.PLAYER, "hammerhead_Balanced", FleetMemberType.SHIP, "Support", false);
         api.addToFleet(FleetSide.PLAYER, "wolf_Assault", FleetMemberType.SHIP, "Scout One", false);

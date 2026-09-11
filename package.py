@@ -138,13 +138,17 @@ def inspect_payload(payload: dict[str, bytes]) -> str:
             == [["version file"], ["omega_ai.version"]], "The version CSV registration is incorrect.")
     inspect_forum_metadata(mod, version_file)
     defaults = json.loads(payload["data/config/settings.json"])
-    require(defaults["omega_ai3"]["mode"] == "Coordinate", "This direct-control build must default to Coordinate.")
+    require(defaults["omega_ai3"]["enabled"] is True and "mode" not in defaults["omega_ai3"],
+            "Enable Omega AI must default to Yes without a separate mode selector.")
     require(defaults["plugins"]["omega_ai3_combat"] == "omegaai3.OmegaCombatPlugin", "The combat plugin is not registered.")
     require(list(csv.reader(io.StringIO(payload["data/missions/mission_list.csv"].decode())))
             == [["mission"], ["omega_ai3_trial"]], "The fleet trial is not registered.")
     luna = list(csv.DictReader(io.StringIO(payload["data/config/LunaSettings.csv"].decode())))
-    require(next(row for row in luna if row["fieldID"] == "omega3_mode")["defaultValue"] == "Coordinate",
-            "The LunaLib default must also be Coordinate.")
+    toggles = [row for row in luna if row["fieldID"] == "omega3_enabled"]
+    require(len(toggles) == 1 and toggles[0]["fieldName"] == "Enable Omega AI"
+            and toggles[0]["fieldType"] == "Boolean" and toggles[0]["defaultValue"] == "true"
+            and not any(row["fieldID"] == "omega3_mode" for row in luna),
+            "Register one Enable Omega AI Boolean, default Yes, without the old mode selector.")
     for name in ["graphics/omega_ai_icon.png", "data/missions/omega_ai3_trial/icon.png"]:
         png = payload[name]
         require(png[:8] == b"\x89PNG\r\n\x1a\n", f"Invalid PNG: {name}")

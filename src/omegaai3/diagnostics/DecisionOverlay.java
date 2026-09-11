@@ -1,6 +1,7 @@
 package omegaai3.diagnostics;
 
 import com.fs.starfarer.api.combat.*;
+import com.fs.starfarer.api.Global;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.ui.LazyFont;
 import java.awt.Color;
@@ -15,23 +16,33 @@ public final class DecisionOverlay {
     private static final Color WAIT = new Color(255, 220, 130);
     private static final Color DISENGAGE = new Color(255, 160, 130);
     private final Map<ShipAPI, LazyFont.DrawableString> text = new IdentityHashMap<>();
+    private final List<LazyFont.DrawableString> statusText = new ArrayList<>();
     private LazyFont font;
     private boolean broken;
 
-    public void render(CombatEngineAPI engine, ViewportAPI viewport, List<Entry> entries, boolean enabled, Predicate<Entry> activeControl) {
-        if (!enabled || broken) { dispose(); return; }
+    public void render(CombatEngineAPI engine, ViewportAPI viewport, List<Entry> entries, boolean enabled,
+                       Predicate<Entry> activeControl, List<String> status) {
+        if ((!enabled && status.isEmpty()) || broken) { dispose(); return; }
         if (viewport == null || !engine.isUIShowingHUD() || engine.isUIShowingDialog()) return;
         try {
             Set<ShipAPI> present = Collections.newSetFromMap(new IdentityHashMap<>());
-            for (Entry entry : entries) {
+            if (enabled) for (Entry entry : entries) {
                 if (!entry.label().isEmpty() && activeControl.test(entry)) present.add(entry.ship());
             }
             for (var iterator = text.entrySet().iterator(); iterator.hasNext();) {
                 var item = iterator.next();
                 if (!present.contains(item.getKey())) { item.getValue().dispose(); iterator.remove(); }
             }
-            if (present.isEmpty()) return;
+            if (present.isEmpty() && status.isEmpty()) return;
             if (font == null) font = LazyFont.loadFont("graphics/fonts/victor10.fnt");
+            while (statusText.size() > status.size()) statusText.remove(statusText.size() - 1).dispose();
+            for (int i = 0; i < status.size(); i++) {
+                if (statusText.size() <= i) statusText.add(font.createText("", WAIT, 14));
+                var line = statusText.get(i);
+                if (!line.getText().equals(status.get(i))) line.setText(status.get(i));
+                line.triggerRebuildIfNeeded();
+                line.draw(24, Global.getSettings().getScreenHeight() - 90 - i * 18);
+            }
             int viewer = engine.getPlayerShip() == null ? 0 : engine.getPlayerShip().getOwner();
             int drawn = 0;
             for (Entry entry : entries) {
@@ -74,6 +85,9 @@ public final class DecisionOverlay {
         for (var label : text.values()) {
             try { label.dispose(); } catch (RuntimeException | LinkageError ignored) { }
         }
-        text.clear(); font = null;
+        for (var line : statusText) {
+            try { line.dispose(); } catch (RuntimeException | LinkageError ignored) { }
+        }
+        statusText.clear(); text.clear(); font = null;
     }
 }

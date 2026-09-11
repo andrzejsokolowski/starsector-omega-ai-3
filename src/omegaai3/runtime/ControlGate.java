@@ -33,8 +33,8 @@ public final class ControlGate {
         if (ship.getFluxTracker().isOverloadedOrVenting()) return "Overloaded or venting";
         if (ship.getSystem() != null && ship.getSystem().isOn()) return "Active ship system";
         var ai = ship.getShipAI();
-        if (ai == null) return "No ship AI";
-        if (!knownPilot(ai.getClass().getName())) return "Custom or wrapped ship AI";
+        String pilotProblem = PilotAccess.problem(ai);
+        if (!pilotProblem.isEmpty()) return pilotProblem;
         if (externallyControlled(ship.getCustomData())) return "RTSAssist control";
         return "";
     }

@@ -3,7 +3,9 @@ Omega AI: Fleet Trial
 An Onslaught and a Hammerhead lead two Wolf frigates against a mixed enemy fleet.
 This mission provides fixed ships and map objectives for comparing fleet behavior.
 
-Select Coordinate in LunaLib's Omega AI configuration for direct control.
+Enable Omega AI defaults to Yes in LunaLib.
+For the first test, enable only Omega AI, LunaLib, and LazyLib, then restart the game.
+Give your fleet Search & Destroy so capture and escort assignments do not suspend Omega.
 Use autopilot if you want Omega to control the flagship too.
 Logging is optional and starts disabled.
 
@@ -15,4 +17,6 @@ Existing fleet orders and manual control take precedence.
 This build controls targets, range, facing, approach, and withdrawal for ordinary combat ships.
 Weapons, missiles, shields, venting, systems, and emergency collision avoidance use native game modules.
 Carriers, fighters, phase ships, and custom ship pilots retain their existing control.
-Observe mode restores native pilots. Combat effectiveness still needs in-game validation.
+The upper-left HUD shows active counts or the reason for missing control.
+AI Tweaks and RTSAssist ship controllers remain unsupported.
+Set Enable Omega AI to No to restore previous pilots. Combat effectiveness still needs in-game validation.

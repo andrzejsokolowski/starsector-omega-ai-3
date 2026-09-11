@@ -53,6 +53,18 @@ class PackagingTests(unittest.TestCase):
     def test_version_tracker_and_built_jar_match(self):
         self.assertEqual(json.loads(self.payload["mod_info.json"])["version"], package.inspect_payload(self.payload))
 
+    def test_default_off_and_removed_mode_selector_are_rejected(self):
+        payload = dict(self.payload)
+        settings = json.loads(payload["data/config/settings.json"])
+        settings["omega_ai3"]["enabled"] = False
+        payload["data/config/settings.json"] = json.dumps(settings).encode()
+        with self.assertRaisesRegex(ValueError, "default to Yes"):
+            package.inspect_payload(payload)
+        payload = dict(self.payload)
+        payload["data/config/LunaSettings.csv"] += b'omega3_mode,Mode,Radio,Observe,"Observe, Coordinate",Legacy mode,,,General\n'
+        with self.assertRaisesRegex(ValueError, "without the old mode selector"):
+            package.inspect_payload(payload)
+
     def test_forum_topic_is_optional_until_published_then_must_match(self):
         package.inspect_forum_metadata({}, {})
         package.inspect_forum_metadata({"modThreadId": "123"}, {"modThreadId": 123})

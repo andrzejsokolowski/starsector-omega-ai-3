@@ -1,10 +1,42 @@
-# Verification of local build 0.2.0
+# Testing local build 0.2.1
 
-This build has direct movement control. Logging is optional and is not the gameplay test.
-The automated checks run before packaging; in-game combat effectiveness remains unverified.
+Enable Omega AI defaults to Yes. There is no Observe/Coordinate selector.
+The current AI Tweaks and RTSAssist ship controllers remain unsupported.
+The upper-left combat HUD explains these conflicts when they prevent control.
+Logging is optional, and no log collection is required for this test.
 
-Local verification on 2026-09-11 passed 74 Java tests, 8 Python packaging tests, the runtime API scan, and ZIP verification.
-The final ZIP SHA-256 is `e65662a60a23c3e5ed23718968bdf248ee6043de43f81206b55604498fcf1884`.
+Local verification passed 78 Java tests, 9 packaging tests, the runtime API scan, and ZIP verification.
+ZIP SHA-256: `7090e1a2de0088e94c68b4e7ac85336b26089f6517911ebe73ba974bb24012d8`.
+
+## First gameplay test
+
+1. Install `Omega-AI-0.2.1.zip` through the mod manager.
+2. Temporarily enable only Omega AI, LunaLib, and LazyLib.
+3. Restart Starsector.
+4. Open LunaLib and leave Enable Omega AI, Ship action labels, and Combat status set to Yes.
+5. Open Omega AI: Fleet Trial from the mission list.
+6. Enable autopilot for the flagship.
+7. Open the command screen and give your fleet Search & Destroy.
+8. Let the ships approach and enter sensor contact.
+
+Search & Destroy permits Omega to choose targets and movement.
+Specific capture, escort, attack, and rally orders take precedence and can suspend Omega.
+The first visible check is a player count above zero under Omega control in the upper-left HUD.
+Action labels such as Advancing and Engaging appear above ships while their Omega pilot executes those decisions.
+Labels remain absent before a ship has a target, during native collision handling, or when another control check rejects it.
+A count that stays at zero means the controller is not active; read the adjacent HUD reason before judging combat behavior.
+
+## Switch check and behavior
+
+During combat, set Enable Omega AI to No.
+The HUD must show disabled, and Omega action labels must disappear.
+Set it back to Yes, then resume combat.
+Eligible ships regain Omega control after a planning update and a ship update.
+This confirms that the switch changes the controller; a different battle outcome is not required to prove that it activated.
+
+Watch whether ships reach useful weapon range, keep room to withdraw, wait for support, and pursue reachable vulnerable targets.
+Stalling, repeated movement loops, and worse losses remain failures even when automated tests pass.
+Automated coverage does not establish improved battle outcomes.
 
 ## Automated coverage
 
@@ -28,23 +60,15 @@ Packaging checks the actual tested class bytes, source hash, Java version, metad
 .\gradlew.bat clean build --console=plain
 python -m unittest discover -s tests -p "test_package.py"
 python package.py
-python package.py --verify Omega-AI-0.2.0.zip
+python package.py --verify Omega-AI-0.2.1.zip
 ```
 
 Native tests use the verifier setting required by Starsector's obfuscated code and read the installed base settings in the test process only.
 No game configuration or installed mod is changed. Test reflection, Mockito, and native harness setup are excluded from the runtime JAR and ZIP.
 
-## In game
-
-Install the local ZIP through the mod manager, select Coordinate, and open Omega AI: Fleet Trial.
-Use autopilot for the flagship if Omega should control it.
-The small action label describes the current executed movement decision; the status counts ships actually under Omega control.
-A specific fleet order, active system, native collision response, manual control, or custom pilot can suspend Omega steering.
-
-The behavior to assess is whether ships close to useful range, withdraw with room left, wait for support without becoming idle, and finish reachable vulnerable enemies.
-Stalling, repeated advance/retreat loops, or worsening losses remain failures even when all automated tests pass.
-No log collection is required for this check.
-Observe remains available to restore native pilots during development.
+The regression suite also covers saved Observe settings, the Yes/No switch, native pilot wrappers, and HUD text without active ship labels.
+A complete plugin test captures live-style ship data, plans movement, installs Omega, executes native thrust, reports active control, and restores the original pilot.
+The ship and combat-engine state in that test are mocks; it does not launch a graphical Starsector battle.
 
 ## Earlier evidence
 
