@@ -12,6 +12,7 @@ public final class PilotSession {
     private record Owned(ShipAPI ship, ShipAIPlugin original, OmegaShipAI pilot) {}
     private final CombatEngineAPI engine;
     private final Map<ShipAPI, Owned> pilots = new IdentityHashMap<>();
+    private final Map<ShipAPI, BasicShipAI> nativePilots = new IdentityHashMap<>();
     private final Set<ShipAPI> failed = Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean enabled;
     public PilotSession(CombatEngineAPI engine) { this.engine = engine; }
@@ -29,9 +30,20 @@ public final class PilotSession {
     }
     public void reconcile(Options options, boolean enabled) {
         this.enabled = enabled && options.mayIssueOrders();
+        nativePilots.keySet().removeIf(s -> !s.isAlive() || s.isExpired());
+        // Read each frame, before the slower tactical pass: RTS hooks newly deployed ships after
+        // several updates. Remember the original public pilot while it is still directly visible.
+        for (ShipAPI ship : engine.getShips()) {
+            if (!options.includes(ship.getOwner()) || !ship.isAlive() || ship.isExpired() || ship.isFighter()) continue;
+            var pilot = PilotAccess.unwrap(ship.getShipAI());
+            if (pilot instanceof BasicShipAI basic && PilotAccess.supportedDelegate(pilot)) nativePilots.put(ship, basic);
+        }
         for (Owned item : new ArrayList<>(pilots.values())) {
             if (!this.enabled || !options.includes(item.ship.getOwner()) || !item.ship.isAlive() || item.ship.isExpired()) restore(item);
-            else if (!PilotAccess.installed(item.ship, item.pilot)) { item.pilot.clear(); pilots.remove(item.ship); }
+            else {
+                item.pilot.keepAlive();
+                if (!PilotAccess.installed(item.ship, item.pilot)) { item.pilot.clear(); pilots.remove(item.ship); }
+            }
         }
     }
     public void publish(ShipAPI ship, TacticalIntent intent, ShipAPI target, Options options) {
@@ -40,10 +52,10 @@ public final class PilotSession {
         if (item == null) {
             ShipAIPlugin original = ship.getShipAI();
             ShipAIPlugin delegate = PilotAccess.unwrap(original);
-            if (delegate == null || delegate.getClass() != BasicShipAI.class) return;
-            if (((BasicShipAI) delegate).getTargetOverride() != null) return;
+            if (!PilotAccess.supportedDelegate(original)) return;
+            if (delegate instanceof BasicShipAI basic && basic.getTargetOverride() != null) return;
             try {
-                OmegaShipAI pilot = new OmegaShipAI((Ship) ship, delegate.getConfig(), engine, () -> allowed(ship));
+                OmegaShipAI pilot = new OmegaShipAI((Ship) ship, original, engine, () -> allowed(ship), nativePilots.get(ship));
                 item = new Owned(ship, original, pilot);
                 pilots.put(ship, item);
                 ship.setShipAI(pilot);

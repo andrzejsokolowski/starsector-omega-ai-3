@@ -12,7 +12,8 @@ public final class ControlGate {
     public static boolean externallyControlled(Map<String, Object> data) {
         for (String key : RTS_KEYS) {
             Object value = data.get(key);
-            if (value != null && !Boolean.FALSE.equals(value)) return true;
+            // RTS uses presence/non-null checks for these markers, including its block-AI marker.
+            if (value != null) return true;
         }
         return false;
     }

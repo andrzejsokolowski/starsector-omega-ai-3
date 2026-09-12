@@ -1,17 +1,15 @@
-# Testing local build 0.2.1
+# Testing local build 0.2.2
 
 Enable Omega AI defaults to Yes. There is no Observe/Coordinate selector.
-The current AI Tweaks and RTSAssist ship controllers remain unsupported.
-The upper-left combat HUD explains these conflicts when they prevent control.
+Keep AI Tweaks and RTSAssist enabled for the compatibility test.
+The tested versions are AI Tweaks 2.2.10 and RTSAssist 0.1.9c.
+Use AI Tweaks' normal pilot, with its separate full Custom AI options off.
 Logging is optional, and no log collection is required for this test.
-
-Local verification passed 78 Java tests, 9 packaging tests, the runtime API scan, and ZIP verification.
-ZIP SHA-256: `7090e1a2de0088e94c68b4e7ac85336b26089f6517911ebe73ba974bb24012d8`.
 
 ## First gameplay test
 
-1. Install `Omega-AI-0.2.1.zip` through the mod manager.
-2. Temporarily enable only Omega AI, LunaLib, and LazyLib.
+1. Install `Omega-AI-0.2.2.zip` through the mod manager.
+2. Keep Omega AI, LunaLib, LazyLib, AI Tweaks, and RTSAssist enabled.
 3. Restart Starsector.
 4. Open LunaLib and leave Enable Omega AI, Ship action labels, and Combat status set to Yes.
 5. Open Omega AI: Fleet Trial from the mission list.
@@ -25,6 +23,19 @@ The first visible check is a player count above zero under Omega control in the 
 Action labels such as Advancing and Engaging appear above ships while their Omega pilot executes those decisions.
 Labels remain absent before a ship has a target, during native collision handling, or when another control check rejects it.
 A count that stays at zero means the controller is not active; read the adjacent HUD reason before judging combat behavior.
+
+## RTSAssist handoff
+
+1. Wait until an autonomous ship displays an Omega action label.
+2. Give that ship a movement command through RTSAssist.
+3. Make sure that it follows your command and loses its Omega action label.
+4. Cancel or complete the RTS command.
+5. Make sure that Omega resumes when the ship has a current movement decision and no other blocking order.
+
+A hold command remains active until you cancel it.
+During the order, the fleet HUD can show Following RTSAssist commands.
+Other autonomous ships can remain under Omega control throughout your intervention.
+No mod disable or restart is required to return control after an RTS command.
 
 ## Switch check and behavior
 
@@ -60,7 +71,7 @@ Packaging checks the actual tested class bytes, source hash, Java version, metad
 .\gradlew.bat clean build --console=plain
 python -m unittest discover -s tests -p "test_package.py"
 python package.py
-python package.py --verify Omega-AI-0.2.1.zip
+python package.py --verify Omega-AI-0.2.2.zip
 ```
 
 Native tests use the verifier setting required by Starsector's obfuscated code and read the installed base settings in the test process only.
@@ -69,6 +80,26 @@ No game configuration or installed mod is changed. Test reflection, Mockito, and
 The regression suite also covers saved Observe settings, the Yes/No switch, native pilot wrappers, and HUD text without active ship labels.
 A complete plugin test captures live-style ship data, plans movement, installs Omega, executes native thrust, reports active control, and restores the original pilot.
 The ship and combat-engine state in that test are mocks; it does not launch a graphical Starsector battle.
+
+## Compatibility coverage
+
+`InteropTest` executes RTSAssist's installed wrapper and injection registry.
+It checks repeated autonomous updates, post-advance movement priority, cancellation, and a long manual-control interval followed by autopilot.
+It also checks restoration, native-pilot capture before RTS attaches its wrapper, and recovery when RTS attaches after Omega.
+
+`AiTweaksInteropTest` loads the installed AI Tweaks pilot through AI Tweaks' own class transformer.
+It executes ExtendedShipAI alone and inside the real RTS wrapper, with Omega around the complete chain.
+The checks cover target override, controller identity, configuration and flag forwarding, RTS command priority, and return to autonomous control.
+The ship and engine state remain test doubles, so these checks do not prove live battle quality or every mod interaction.
+Test loaders, reflection, third-party JARs, and copied game classes are excluded from the mod package.
+
+## Local 0.2.2 verification, 2026-09-12
+
+The Java build passed all 85 tests, including the integration checks using the installed AI Tweaks and RTSAssist code.
+All 9 Python packaging tests passed, and the generated ZIP passed package verification.
+The archive contains 12 runtime files under one `OmegaAI/` folder, with the current compiled JAR and local 0.2.2 metadata.
+Its SHA-256 is `6d5dd19502a8e8aeaa253ecd595685e379dab96a7abfb5fc969a88f2d8811458`.
+Live battle testing of this build is still pending.
 
 ## Earlier evidence
 

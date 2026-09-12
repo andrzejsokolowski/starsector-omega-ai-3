@@ -8,6 +8,8 @@ def core = file("$gamePath/starsector-core")
 def luna = fileTree(dir: "$gamePath/mods", include: 'LunaLib*/jars/LunaLib.jar')
 def lazy = fileTree(dir: "$gamePath/mods", include: 'LazyLib*/jars/LazyLib.jar')
 def lazyRuntime = fileTree(dir: "$gamePath/mods", include: 'LazyLib*/jars/internal/Kotlin-Runtime.jar')
+def rtsTest = fileTree(dir: "$gamePath/mods", include: 'RTSAssist*/jars/RTSAssist.jar')
+def tweaksTest = fileTree(dir: "$gamePath/mods", includes: ['AI Tweaks*/jars/aitweaks-launcher.jar', 'AI Tweaks*/jars/asm-*.jar'])
 def metadata = new groovy.json.JsonSlurper().parse(file('mod_info.json'))
 version = metadata.version
 def releaseInputs = files(fileTree('src') { include '**/*.java' }, 'build.gradle', 'settings.gradle', 'gradle.properties', 'mod_info.json')
@@ -35,6 +37,8 @@ dependencies {
     testImplementation luna
     testImplementation lazy
     testImplementation lazyRuntime
+    testImplementation rtsTest
+    testImplementation tweaksTest
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-core:5.14.2'
@@ -49,9 +53,13 @@ tasks.register('checkGameDependencies') {
 }
 tasks.named('compileJava') { dependsOn 'checkGameDependencies' }
 test {
+    doFirst {
+        if (rtsTest.isEmpty() || tweaksTest.isEmpty()) throw new GradleException('Compatibility tests require installed RTSAssist and AI Tweaks JARs. These are test dependencies only.')
+    }
     // The game's obfuscated classes require the same verifier setting as starsector.bat.
     jvmArgs '-Xverify:none'
     systemProperty 'omega.test.core', core.absolutePath
+    systemProperty 'omega.test.mods', file("$gamePath/mods").absolutePath
     systemProperty 'java.library.path', new File(core, 'native/windows').absolutePath
     useJUnitPlatform()
     testLogging { events 'failed', 'skipped'; exceptionFormat = 'full' }

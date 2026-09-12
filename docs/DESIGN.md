@@ -1,4 +1,4 @@
-# Direct combat control in 0.2.1
+# Direct combat control in 0.2.2
 
 Omega now owns the target and movement decision for eligible ordinary combat ships.
 The active runtime no longer calls the old rally planner or creates fleet assignments.
@@ -8,15 +8,32 @@ The earlier `FleetPlanner`, `OrderBook`, and `DecisionView` remain as historical
 
 `OmegaCombatPlugin` captures one visibility-limited frame per enabled side every 0.25 simulation seconds.
 `TacticalPlanner` assigns targets across the fleet and produces a velocity, hull facing, action, target, and expiration for each eligible ship.
-`PilotSession` installs `OmegaShipAI` over the exact native `BasicShipAI`, either directly or inside Starsector's own transparent wrapper.
-It preserves the original outer pilot for restoration.
-It does not replace unknown wrappers, custom pilots, or existing target overrides.
+`PilotSession` preserves the current pilot and installs an Omega adapter around it.
+Accepted delegates are the exact native pilot, AI Tweaks ExtendedShipAI, and RTSAssist's known wrapper.
+The adapter implements the game AI interfaces rather than replacing the existing pilot with a new native instance.
 
-`OmegaShipAI` extends the game's native pilot. A plain delegating wrapper is unsafe because RC8 checks that the advancing AI is the ship's installed controller.
-The native update still runs the attack, shield, vent, system, and collision modules.
-If Omega remains permitted, `Rc8Helm` removes only that update's newly queued movement commands and runs a native `BasicEngineAI` with Omega's desired velocity and facing.
-Weapons, shield commands, other command types, and commands already present before the update survive.
-Existing movement commands, blocked movement, emergency collision avoidance, and queued system use cause Omega to yield.
+Before advancing its delegate, Omega temporarily installs that original controller.
+This satisfies RC8 and AI Tweaks' installed-identity checks and lets RTS perform its own nested controller swaps.
+A finally block restores Omega only if the remaining controller still represents the same delegate.
+A different replacement made by another mod remains installed.
+
+The existing pilot runs its attack, shield, vent, system, and collision modules.
+RTS post-advance injections also run before Omega checks the movement command blocks.
+If control remains permitted, `Rc8Helm` replaces only the delegate's new movement commands with Omega's desired velocity and facing.
+Weapons, shields, other command types, and pre-existing commands survive.
+RTS movement blocks, external movement commands, collision avoidance, and queued system use cause Omega to yield.
+
+The session samples exposed native pilots each frame before RTS wraps newly deployed ships.
+It uses a captured pilot only while both the wrapper's configuration and AI flags still identify that same pilot.
+That gives Omega access to native targeting and collision queries without reading RTS's private pilot list.
+If no matching native pilot was captured, movement still works through the wrapper.
+In that fallback, Omega leaves target override to the delegate and yields when a short collision projection detects immediate risk.
+
+RTS uses delegate calls to detect whether its wrapper is still running.
+Omega keeps that bookkeeping active through the wrapper's public configuration getter while manual control skips AI updates.
+This prevents RTS from wrapping the outer Omega adapter around its own existing wrapper.
+A fresh RTS target command releases Omega's target override and briefly suspends its steering decision.
+The integration uses public APIs and class-name checks, with no production reflection or third-party library dependency.
 
 RC8's explicit-facing helper ignores requested speed for ordinary ships and tries to maximize velocity along its heading.
 The adapter supplies the difference between desired and actual velocity as that heading, with a small acceleration-dependent tolerance.
@@ -53,7 +70,7 @@ A faster target opening range outside the battery causes disengagement instead o
 
 Movement candidates account for visible ship/hulk radii, relative velocity, and map edges.
 Escape directions favor lower collision risk and nearby ready allies.
-Native emergency collision handling has final priority.
+The native collision decision has priority when its pilot is available; the wrapper fallback uses the short collision projection described above.
 
 ## Limits and remaining work
 
@@ -77,8 +94,8 @@ These include AI Tweaks, RTSAssist, specific fleet orders, manual control, syste
 The HUD only counts ships visible to the player and does not depend on a flagship being alive.
 Ship labels remain limited to executed movement decisions.
 
-AI Tweaks ExtendedShipAI and RTSAssist's pilot wrapper remain unsupported.
-The known native wrapper is not treated as a custom pilot, but Omega does not unwrap opaque third-party controllers.
-The installed AI Tweaks picker selects ExtendedShipAI even with its Custom AI settings off.
-RTSAssist hooks friendly ships at deployment without requiring an RTS movement command.
-Use the minimal mod setup in the test guide to exercise Omega's controller.
+AI Tweaks ExtendedShipAI and RTSAssist's known wrapper are supported by the adapter.
+AI Tweaks' separate full Custom AI is outside the tested configuration.
+RTSAssist remains enabled during autonomous combat and takes movement priority when a command is active.
+Specific fleet assignments, including AI Tweaks cohesion orders, still take precedence.
+The test guide describes the supported setup and the RTS handoff check.

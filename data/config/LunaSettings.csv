@@ -1,5 +1,5 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
-omega3_enabled,Enable Omega AI,Boolean,true,,Yes enables target selection and movement control. No restores the previous pilots. Custom ship AI from other mods retains control.,,,General
+omega3_enabled,Enable Omega AI,Boolean,true,,Yes enables Omega movement alongside the normal AI Tweaks pilot and RTSAssist. Your RTS commands take priority. No restores the previous pilots.,,,General
 omega3_player,Player fleet,Boolean,true,,Include your autonomous ships. Your manually piloted ship and allied fleets retain their own control.,,,General
 omega3_enemy,Enemy fleet,Boolean,true,,Include eligible enemy ships. Existing enemy commander orders are preserved.,,,General
 omega3_simulator,Combat simulator,Boolean,true,,Include refit simulations and the fleet trial.,,,General

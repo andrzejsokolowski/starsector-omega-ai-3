@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2 - local development build
+
+- Added integration with AI Tweaks ExtendedShipAI and RTSAssist while retaining the existing pilot and firing behavior.
+- Made RTS movement commands take priority over Omega, with autonomous control resuming after the commands end.
+- Kept RTS pilot tracking active during manual control to prevent wrapper loops when autopilot resumes.
+- Preserved the original pilot when disabling Omega, including existing RTS wrappers.
+- Updated the trial instructions to keep AI Tweaks and RTSAssist enabled.
+
 ## 0.2.1 - local development build
 
 - Replaced Observe/Coordinate with one Enable Omega AI switch that defaults to Yes.

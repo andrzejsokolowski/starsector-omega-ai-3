@@ -27,7 +27,7 @@ class Rc8HelmTest {
         }
         field.set(null, new org.json.JSONObject(json.toString()));
     }
-    private Ship ship(List<Ship.Oo> commands) {
+    static Ship ship(List<Ship.Oo> commands) {
         Ship ship = mock(Ship.class, RETURNS_DEEP_STUBS);
         when(ship.getCommands()).thenReturn(commands);
         doReturn(EnumSet.noneOf(Ship.oo.class)).when(ship).getBlockedCommands();
@@ -46,7 +46,7 @@ class Rc8HelmTest {
         doAnswer(call -> { commands.add(call.getArgument(0)); return null; }).when(ship).giveCommand(any(Ship.Oo.class));
         return ship;
     }
-    private static Ship.Oo command(String name) { return new Ship.Oo(Ship.oo.valueOf(name), null); }
+    static Ship.Oo command(String name) { return new Ship.Oo(Ship.oo.valueOf(name), null); }
     private static TacticalIntent intent(Vec velocity, double facing) {
         return new TacticalIntent(TacticalIntent.Action.ADVANCE, "enemy", velocity, facing, 10, "test", 20);
     }
@@ -137,7 +137,9 @@ class Rc8HelmTest {
             singleton.when(com.fs.starfarer.combat.CombatEngine::getInstance).thenReturn(mock(com.fs.starfarer.combat.CombatEngine.class, RETURNS_DEEP_STUBS));
             var pilot = new omegaai3.runtime.OmegaShipAI(ship, new com.fs.starfarer.api.combat.ShipAIConfig(), engine, () -> true);
             var wrapper = new Ship.ShipAIWrapper(pilot);
-            when(ship.getShipAI()).thenReturn(wrapper); when(ship.getAI()).thenReturn(wrapper);
+            var installed = new java.util.concurrent.atomic.AtomicReference<com.fs.starfarer.api.combat.ShipAIPlugin>(wrapper);
+            when(ship.getShipAI()).thenAnswer(call -> installed.get()); when(ship.getAI()).thenAnswer(call -> installed.get());
+            doAnswer(call -> { installed.set(call.getArgument(0)); return null; }).when(ship).setShipAI(any());
             pilot.publish(intent(new Vec(80, 0), 0), target);
             assertNull(pilot.activeIntent(), "Publishing alone must not display a label");
             wrapper.advance(.016f);

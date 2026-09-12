@@ -4,7 +4,8 @@ An Onslaught and a Hammerhead lead two Wolf frigates against a mixed enemy fleet
 This mission provides fixed ships and map objectives for comparing fleet behavior.
 
 Enable Omega AI defaults to Yes in LunaLib.
-For the first test, enable only Omega AI, LunaLib, and LazyLib, then restart the game.
+Keep AI Tweaks and RTSAssist enabled alongside Omega AI, LunaLib, and LazyLib, then restart the game.
+Use AI Tweaks' normal pilot with its separate full Custom AI options off.
 Give your fleet Search & Destroy so capture and escort assignments do not suspend Omega.
 Use autopilot if you want Omega to control the flagship too.
 Logging is optional and starts disabled.
@@ -15,8 +16,9 @@ Retreating means backing out of local danger, not leaving the battle.
 Existing fleet orders and manual control take precedence.
 
 This build controls targets, range, facing, approach, and withdrawal for ordinary combat ships.
-Weapons, missiles, shields, venting, systems, and emergency collision avoidance use native game modules.
+The existing pilot still handles weapons, missiles, shields, venting, and systems.
 Carriers, fighters, phase ships, and custom ship pilots retain their existing control.
 The upper-left HUD shows active counts or the reason for missing control.
-AI Tweaks and RTSAssist ship controllers remain unsupported.
+Issue an RTS movement command to a ship: Omega yields and its action label disappears.
+Cancel or finish that RTS order to let Omega resume autonomous movement.
 Set Enable Omega AI to No to restore previous pilots. Combat effectiveness still needs in-game validation.

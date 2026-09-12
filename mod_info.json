@@ -2,9 +2,9 @@
   "id": "omega_ai3",
   "name": "Omega AI",
   "author": "Oddisz",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "utility": "true",
-  "description": "Work in progress: direct target selection and movement control for ordinary combat ships. Enable Omega AI defaults to Yes. The combat HUD shows active control or explains why ships are excluded. Custom pilots, including AI Tweaks and RTSAssist, retain control.",
+  "description": "Work in progress: tactical movement for ordinary combat ships, with AI Tweaks ExtendedShipAI and RTSAssist integration. Keeps the existing pilot and firing behavior, yields to RTS movement commands, and resumes autonomous movement when they end. Enable Omega AI defaults to Yes.",
   "gameVersion": "0.98a-RC8",
   "originalGameVersion": "0.98a-RC8",
   "jars": [

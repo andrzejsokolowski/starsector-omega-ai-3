@@ -86,7 +86,7 @@ class CombatMathTest {
         for (String key : List.of("RTS_BLOCKAI_ForYourOwnSakeDontUseThis", "RTS_OVERRIDETHRUST_ForYourOwnSakeDontUseThis", "RTS_OVERRIDEFACING_ForYourOwnSakeDontUseThis")) {
             assertTrue(ControlGate.externallyControlled(java.util.Map.of(key, true)));
             assertTrue(ControlGate.externallyControlled(java.util.Map.of(key, new Object())));
-            assertFalse(ControlGate.externallyControlled(java.util.Map.of(key, false)));
+            assertTrue(ControlGate.externallyControlled(java.util.Map.of(key, false)));
         }
         assertFalse(ControlGate.externallyControlled(java.util.Map.of("unrelated", true)));
     }
